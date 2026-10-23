@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Grabar mi voz · FilmCode</title>
+  <link rel="stylesheet" href="./grabador.css">
+  <script type="module" src="./grabador.js"></script>
+</head>
+<body>
+  <a class="saltar" href="#grabador">Ir al grabador</a>
+  <header class="cabecera">
+    <a class="marca" href="/">FilmCode</a>
+    <span>Herramienta local · voz</span>
+  </header>
+  <main>
+    <section class="introduccion" aria-labelledby="titulo">
+      <p class="etiqueta">GRABAR MI VOZ</p>
+      <h1 id="titulo">Tu voz, con más matices.</h1>
+      <p>Lee con tu voz habitual, escucha cada toma y conserva las que más se parezcan a ti. Cinco lecturas para variar el ritmo y la entonación.</p>
+      <p class="nota">El audio se queda en esta pestaña hasta que lo descargues. Esta herramienta no entrena modelos ni importa grabaciones a VoiceStudio.</p>
+    </section>
+
+    <div class="distribucion">
+      <section id="grabador" class="panel" aria-labelledby="titulo-lectura">
+        <div class="fila titulo-panel"><h2 id="titulo-lectura">1. Elige una lectura</h2><span id="cantidad" class="nota"></span></div>
+        <label for="lectura">Tipo de lectura</label>
+        <select id="lectura" aria-describedby="consejo"></select>
+        <p id="consejo" class="nota"></p>
+        <blockquote id="texto" class="lectura"></blockquote>
+        <p class="nota">Lee solo el texto de arriba. Objetivo: 15–25 segundos, sin apresurarte. La grabación se detiene a los 30 segundos; no elimina silencios ni modifica tu voz.</p>
+
+        <div class="consola">
+          <div class="fila"><h2>2. Graba a tu ritmo</h2><output id="tiempo" aria-label="Tiempo de grabación">00:00</output></div>
+          <progress id="progreso" max="30" value="0" aria-label="Tiempo grabado, máximo 30 segundos"></progress>
+          <div class="nivel"><label for="nivel">Nivel del micrófono</label><meter id="nivel" min="0" max="1" value="0" aria-label="Nivel del micrófono"></meter></div>
+          <div class="acciones">
+            <button id="grabar" class="principal" type="button">Grabar esta lectura</button>
+            <button id="detener" type="button" disabled>Detener</button>
+          </div>
+          <p id="estado" role="status" aria-live="polite">Listo. El micrófono se activa únicamente al pulsar Grabar.</p>
+          <p id="reloj-accesible" class="solo-lector" aria-live="polite" aria-atomic="true"></p>
+          <p id="error" role="alert" hidden></p>
+        </div>
+      </section>
+
+      <aside class="consejos" aria-labelledby="antes">
+        <h2 id="antes">Antes de empezar</h2>
+        <ol>
+          <li>Busca una habitación tranquila. Cierra música y sonidos de otras aplicaciones.</li>
+          <li>Mantén el micrófono a una distancia cómoda, aproximadamente 15–20 cm, un poco a un lado de la boca.</li>
+          <li>Habla como cuando explicas algo a una persona. Conserva tu acento, tus pausas y tu volumen habitual.</li>
+          <li>Deja un breve silencio antes y después de leer. Si te equivocas, repite la toma completa.</li>
+        </ol>
+        <p class="nota">Se solicita audio mono sin reducción de ruido, cancelación de eco ni control automático de volumen. El navegador o el micrófono pueden aplicar sus propios ajustes.</p>
+        <div class="referencia">
+          <h3>Elige una buena referencia</h3>
+          <p>Escucha con calma. Conserva una toma clara, sin golpes ni ruido y con tu forma natural de hablar. Más grabaciones permiten elegir; no garantizan por sí solas una voz más parecida.</p>
+          <p class="nota">Guarda juntos el WAV y su TXT. Corrige la transcripción si dijiste alguna palabra distinta.</p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="tomas" aria-labelledby="titulo-tomas">
+      <div class="fila"><h2 id="titulo-tomas">3. Escucha y descarga tus tomas</h2><span id="total-tomas" class="nota">0 tomas</span></div>
+      <p class="nota">Puedes repetir cualquier lectura sin perder las demás tomas. Descarga los archivos que quieras conservar antes de cerrar o recargar esta pestaña.</p>
+      <p id="vacio" class="vacio">Tus grabaciones aparecerán aquí.</p>
+      <div id="lista-tomas"></div>
+    </section>
+    <noscript><p class="error">Activa JavaScript para usar el grabador. No se ha solicitado acceso al micrófono.</p></noscript>
+  </main>
+  <footer>WAV PCM de 16 bits · mono · frecuencia original del navegador · sin envíos a servicios</footer>
+</body>
+</html>

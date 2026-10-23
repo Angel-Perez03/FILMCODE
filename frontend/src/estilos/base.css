@@ -1,0 +1,125 @@
+/* Tokens del sistema de diseño de FilmCode (los mismos nombres que tokens.json) y la base de la página. */
+:root {
+  --fondo: #F3F5F6;
+  --superficie: #FFFFFF;
+  --superficie-2: #E5EBF0;
+  --terminal: #0D1117;
+  --borde: #D0DAE2;
+  --texto: #192B38;
+  --texto-suave: #405563;
+  --gris: #586C7B;
+  --gris-oscuro: #B5C1CB;
+  --gris-arista: #718594;
+  --azul: #245AC3;
+  --sobre-azul: #FFFFFF;
+  --foco: var(--azul);
+  --azul-oscuro: #E1EBFA;
+  --barra: var(--azul-oscuro);
+  --azul-linea: #83A4D4;
+  --verde: #2C7047;
+  --amarillo: #8D6117;
+  --rojo: #B13535;
+  --sintaxis-palabra-clave: #D7B96E;
+  --sintaxis-funcion: #ECECEC;
+  --sintaxis-nombre: #C9CDD4;
+  --sintaxis-cadena: #A8C98A;
+  --sintaxis-numero: #8CC4F0;
+  --sintaxis-comentario: #6A6F78;
+  --sintaxis-operador: #A0A4AC;
+  --sintaxis-builtin: #8CC4F0;
+  --sombra-flota: 0 16px 48px rgba(31, 52, 72, 0.15);
+  --espacio-4: 4px;
+  --espacio-8: 8px;
+  --espacio-12: 12px;
+  --espacio-16: 16px;
+  --espacio-24: 24px;
+  --espacio-32: 32px;
+  --espacio-48: 48px;
+  --espacio-64: 64px;
+  --espacio-96: 96px;
+  --espacio-160: 160px;
+  --carrete-asoma: 60px;
+  --radio-barra: 0px;
+  --radio-boton: 6px;
+  --radio-marco: 8px;
+  --ancho-titular: 62%;
+  --ancho-titulo: 75%;
+  --ancho-texto: 100%;
+  --alto-control-chico: 32px;
+  --alto-control: 40px;
+  --alto-control-grande: 56px;
+  --font-archivo: "Archivo Variable", "Arial Narrow", system-ui, sans-serif;
+  --font-codigo: Consolas, "Cascadia Mono", Menlo, monospace;
+  --font-video: "Segoe UI", system-ui, sans-serif;
+  --curva-entrar: cubic-bezier(0.23, 1, 0.32, 1);
+  --curva-mover: cubic-bezier(0.77, 0, 0.175, 1);
+  --curva-panel: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-presion: 140ms;
+  --dur-barrido: 200ms;
+  --dur-barrido-salida: 150ms;
+  --dur-menu: 200ms;
+  --dur-menu-salida: 150ms;
+  --dur-dialogo: 260ms;
+  --dur-dialogo-salida: 200ms;
+  --dur-tinta: 400ms;
+  --margen: var(--espacio-48);
+  --alto-nav: var(--alto-control-grande);
+  color-scheme: light;
+}
+
+@theme inline {
+  --font-archivo: var(--font-archivo);
+  --font-codigo: var(--font-codigo);
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-superficie-2: var(--superficie-2);
+  --color-terminal: var(--terminal);
+  --color-borde: var(--borde);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-gris: var(--gris);
+  --color-gris-oscuro: var(--gris-oscuro);
+  --color-azul: var(--azul);
+  --color-barra: var(--barra);
+  --color-verde: var(--verde);
+  --color-amarillo: var(--amarillo);
+  --color-rojo: var(--rojo);
+  --radius-boton: var(--radio-boton);
+  --radius-marco: var(--radio-marco);
+  --ease-entrar: var(--curva-entrar);
+  --ease-mover: var(--curva-mover);
+}
+
+@media (max-width: 1279px) { :root { --margen: var(--espacio-32); } }
+@media (max-width: 767px) { :root { --margen: var(--espacio-16); } }
+
+html { background: var(--fondo); }
+body { margin: 0; min-height: 100svh; background: var(--fondo); color: var(--texto); font-family: var(--font-archivo); font-stretch: var(--ancho-texto); font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+::selection { background: var(--barra); color: var(--texto); }
+[hidden] { display: none !important; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+img, video { max-width: 100%; }
+code, pre, kbd { font-family: var(--font-codigo); }
+:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+.vc-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.vc-saltar.vc-boton { position: fixed; left: var(--espacio-16); top: var(--espacio-8); z-index: 60; transform: translateY(-200%); }
+.vc-saltar:focus-visible { transform: none; }
+
+/* Tipo: los tamaños de 1440 px del sistema, fluidos en pantallas más chicas */
+.titular, .titulo, .escalera, .campo-titular, .frase { margin: 0; text-wrap: balance; }
+.titular { font-size: 7.8vw; line-height: 0.9; font-weight: 900; font-stretch: var(--ancho-titular); letter-spacing: -0.03em; text-transform: uppercase; }
+.titulo { font-size: clamp(32px, 2rem + 1vw, 48px); line-height: 1.08; font-weight: 700; font-stretch: 90%; letter-spacing: -0.025em; }
+.escalera { font-size: clamp(36px, 4.6vw, 76px); line-height: 0.95; font-weight: 900; font-stretch: var(--ancho-titulo); letter-spacing: -0.02em; }
+.campo-titular { font-size: clamp(48px, 8vw, 132px); line-height: 1; font-weight: 900; font-stretch: var(--ancho-titular); letter-spacing: -0.03em; }
+.frase { font-size: clamp(24px, 2.5vw, 36px); line-height: 1.2; font-weight: 500; letter-spacing: -0.01em; }
+.entrada { font-size: 24px; line-height: 1.3; font-weight: 400; }
+.texto { font-size: 17px; line-height: 1.5; font-weight: 400; }
+.boton { font-size: 16px; line-height: 1; font-weight: 600; }
+.pequeno { font-size: 13px; line-height: 1.4; font-weight: 500; letter-spacing: 0.01em; }
+.codigo { font-family: var(--font-codigo); font-size: 14px; line-height: 1.6; font-variant-ligatures: none; }
+.vc-cifras, time { font-variant-numeric: tabular-nums; }
+@media (max-width: 767px) {
+  .titular, .campo-titular { font-size: 11vw; }
+  .entrada { font-size: 20px; }
+}

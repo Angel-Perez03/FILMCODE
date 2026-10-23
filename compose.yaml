@@ -1,0 +1,40 @@
+name: filmcode
+
+services:
+  filmcode:
+    image: filmcode:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Linux nativo o Docker Desktop >=4.34 con host networking activado.
+    # La API y los servicios conservan sus direcciones localhost.
+    network_mode: host
+    init: true
+    restart: "no"
+    env_file:
+      - path: ./configuracion.local
+        required: true
+    environment:
+      FILMCODE_DOCKER: "1"
+      VIDEOCODIGO_RAIZ: /app
+      NO_PROXY: localhost,127.0.0.1,::1
+      no_proxy: localhost,127.0.0.1,::1
+    cpus: "${FILMCODE_CPU:-4}"
+    mem_limit: "${FILMCODE_RAM:-4g}"
+    memswap_limit: "${FILMCODE_RAM:-4g}"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - proyectos:/app/videos
+      - estado:/app/.web
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  proyectos:
+  estado:

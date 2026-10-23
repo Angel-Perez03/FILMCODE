@@ -1,0 +1,680 @@
+{
+  "version": 1,
+  "archivos": [
+    {
+      "archivo": ".dockerignore",
+      "bytes": 1299,
+      "sha256": "e5744ad2fc3cb669116a3c8429483d24baa3cd0c8d5979d7ab0a3802c975474b"
+    },
+    {
+      "archivo": ".env.example",
+      "bytes": 1286,
+      "sha256": "c6efec425c702e55be25a3fb221111df09f1b353f49f80c26635d9bdec7c038b"
+    },
+    {
+      "archivo": ".gitignore",
+      "bytes": 560,
+      "sha256": "22fe33bb2f3d49f1eda8fa0c1ada420249c18455de8140232553be0b55edbfb4"
+    },
+    {
+      "archivo": "Dockerfile",
+      "bytes": 2525,
+      "sha256": "31038fa417646cbd5e6da75fdb375b234895b9543a6e035517efd43d4f8a7eb2"
+    },
+    {
+      "archivo": "FilmCode.bat",
+      "bytes": 376,
+      "sha256": "b6d40e6adcda75efddd2a6a1a9813fac8906801b069bb28fa5844fc7f7f32b99"
+    },
+    {
+      "archivo": "Instalar-FilmCode.cmd",
+      "bytes": 271,
+      "sha256": "58b5aeb31f10e0d33636727aa79ad95478addfba7ae07061f2c1062e7d3a3c88"
+    },
+    {
+      "archivo": "README.md",
+      "bytes": 22359,
+      "sha256": "c38d2e7a75fa733b19a3d1a602e0c5d2bb72c4571c00d96ec8778a971194b7ac"
+    },
+    {
+      "archivo": "buildkitd.toml",
+      "bytes": 168,
+      "sha256": "3d0e89aaf257f424e9598259e8ecbe49ac66dabcd49cf4dc3595f3403253f974"
+    },
+    {
+      "archivo": "compose.publicado.yaml",
+      "bytes": 939,
+      "sha256": "846fb3b085983fb57a8ea2366f24d693e30e64c901d00817f678c4b055b67506"
+    },
+    {
+      "archivo": "compose.yaml",
+      "bytes": 925,
+      "sha256": "a26aed23c0a37628e63ff952035df6871e7cefce4ecc2e0de69dcfdb24ac6717"
+    },
+    {
+      "archivo": "configuracion.example",
+      "bytes": 1286,
+      "sha256": "c6efec425c702e55be25a3fb221111df09f1b353f49f80c26635d9bdec7c038b"
+    },
+    {
+      "archivo": "fonts.conf",
+      "bytes": 556,
+      "sha256": "2ad0521fb4d09f4baccff24caa029928bcdae8ac39e6ec935b89836f417afe39"
+    },
+    {
+      "archivo": "frontend/index.html",
+      "bytes": 502,
+      "sha256": "fb22bf51782b1908b7c4b7ab91ce846fd882a615e1924ca6fb47871e18e5e3e0"
+    },
+    {
+      "archivo": "frontend/package-lock.json",
+      "bytes": 206185,
+      "sha256": "d388377876cbfd7115bfafd2803e6ad0ef98490af00d5ff5846fd6f3d3f9ed74"
+    },
+    {
+      "archivo": "frontend/package.json",
+      "bytes": 1158,
+      "sha256": "bbe6ccdf64711cd3895d753b6956abdf626d2c9ed441cfea0bb53e53095e1fcc"
+    },
+    {
+      "archivo": "frontend/public/apple-touch-icon.png",
+      "bytes": 753,
+      "sha256": "aa020fd59a5cf4192b3221d9c3e1e44d4b391edf34d0e5994f674f77e7fdc05a"
+    },
+    {
+      "archivo": "frontend/public/favicon-32.png",
+      "bytes": 388,
+      "sha256": "aeedbe3c08ad7c15376462733ffd0d9537a441f6be5170f2b50de62756f5561c"
+    },
+    {
+      "archivo": "frontend/public/favicon.svg",
+      "bytes": 360,
+      "sha256": "02ad3dd85fc2ca5e4a27c4d1db36bee3157958a49ba64f7c25c34bd4d6a9348f"
+    },
+    {
+      "archivo": "frontend/public/grano.png",
+      "bytes": 25828,
+      "sha256": "b7cd7dc22c39409f2ba9d92b7d46999174bdabc27f5b87fc9a2d17622ac6f9b8"
+    },
+    {
+      "archivo": "frontend/public/instalador/Instalar-FilmCode.cmd",
+      "bytes": 326,
+      "sha256": "1f875723837cfbe4c460f53a6bc9c5dd2d9031c6ef446e22672abb9813989348"
+    },
+    {
+      "archivo": "frontend/public/instalador/Instalar-FilmCode.ps1",
+      "bytes": 12599,
+      "sha256": "3519f085226287fcc3c41c3caa4f8a1c97cb5ea40b1527c3577c4accfaeabf20"
+    },
+    {
+      "archivo": "frontend/public/instalador/Operaciones-FilmCode.ps1",
+      "bytes": 20939,
+      "sha256": "71a19717144654ddec43dcecc1c3c9540ecf7dadcbded6d1e0c4dafeefb7a037"
+    },
+    {
+      "archivo": "frontend/public/instalador/README.md",
+      "bytes": 2466,
+      "sha256": "756d09ae284a5cce3df7267cd51802da8912ff9630a9e68c0c53ebda8a9cd0b6"
+    },
+    {
+      "archivo": "frontend/public/instalador/instalador-windows.zip",
+      "bytes": 12045,
+      "sha256": "b81920e5ea84b8849d61ae5b4a23457ac2eb4f5a454142cde1bd41fffa830cb6"
+    },
+    {
+      "archivo": "frontend/public/marca/fcode-oscuro.svg",
+      "bytes": 1925,
+      "sha256": "65016ccbe9dcd8cbed0782aeb2142f8af7fa08b017e04f77e0967d40006d67d9"
+    },
+    {
+      "archivo": "frontend/public/marca/fcode.svg",
+      "bytes": 1952,
+      "sha256": "bb917f88e0bab4cc4e48cc2be8dfebd88142ec2ede6140352cc3bf171e72d568"
+    },
+    {
+      "archivo": "frontend/public/marca/filmcode-oscuro.svg",
+      "bytes": 2643,
+      "sha256": "31432660cae57c911af60b874a230959a11b45920b5cdc45ae3deaef0fa7b313"
+    },
+    {
+      "archivo": "frontend/public/marca/filmcode.svg",
+      "bytes": 2670,
+      "sha256": "0855d8197d409eaae1c226000dfeda6bd985efe3e3bf7554805bc3670b47ceff"
+    },
+    {
+      "archivo": "frontend/public/voz/README.md",
+      "bytes": 3361,
+      "sha256": "8bd523153dd33b30a811b680b283546090c852cdb82d4cb77d80e0614edc626f"
+    },
+    {
+      "archivo": "frontend/public/voz/grabador.css",
+      "bytes": 5774,
+      "sha256": "e327e8beafc1151ec7681bb640b4d7f344ba57237435f4fa65fe64483dd35d9e"
+    },
+    {
+      "archivo": "frontend/public/voz/grabador.js",
+      "bytes": 13591,
+      "sha256": "a3068bdacad85f808534dcd420a62875251f6438bc106ca79e082e226971c950"
+    },
+    {
+      "archivo": "frontend/public/voz/index.html",
+      "bytes": 4611,
+      "sha256": "e530042f9428d201ef9bdf6c7481a8e2bb4fe72ff2fa916319bd5e8e0ccdabc3"
+    },
+    {
+      "archivo": "frontend/public/voz/lecturas.js",
+      "bytes": 2249,
+      "sha256": "9d3cbeb51d351bbf9c86faf8458fbf2fc28502958c448702273a306eb321692d"
+    },
+    {
+      "archivo": "frontend/public/voz/procesador.js",
+      "bytes": 1634,
+      "sha256": "c3ceddbd92fe1e0a20ed12ae8af770b91e0f0f8b60df58d4cb7e5d374a9674e4"
+    },
+    {
+      "archivo": "frontend/public/voz/wav.js",
+      "bytes": 1581,
+      "sha256": "4260687ff6cd57cb1bfc8baadfef0276dca3f00a720805689927ffb61a167cb3"
+    },
+    {
+      "archivo": "frontend/src/App.tsx",
+      "bytes": 1452,
+      "sha256": "6cc224f16dc49dc094bb454e2d36dd73e96f02bd3499dd0229f7289525936e7f"
+    },
+    {
+      "archivo": "frontend/src/api.ts",
+      "bytes": 1774,
+      "sha256": "92fd7abe487c5ec61c1fb12afffb68c0a61c364e2c9056aedee24dd51619e4c4"
+    },
+    {
+      "archivo": "frontend/src/componentes/BarraSuperior.tsx",
+      "bytes": 2088,
+      "sha256": "1a1ad4ee0afffe0acf6089300fcf678c3bb85ee1f12d9c2973c04c0f30fceb6a"
+    },
+    {
+      "archivo": "frontend/src/componentes/Comun.tsx",
+      "bytes": 5150,
+      "sha256": "c182d5d1150e6263b174a85d021bdd6fcc67089ab8cb8aca3ed01ff7f1abfe9b"
+    },
+    {
+      "archivo": "frontend/src/componentes/Controles.tsx",
+      "bytes": 4222,
+      "sha256": "b19f421db4ae58bd8de75ae5d3dbf27a955567115de61572a531bf2bbdf3bfdd"
+    },
+    {
+      "archivo": "frontend/src/componentes/EditorCodigo.tsx",
+      "bytes": 3678,
+      "sha256": "314b80c40d580efb92492d8259cbb2ded26e55086a015a0f8e3f83168652f1ad"
+    },
+    {
+      "archivo": "frontend/src/componentes/Icono.tsx",
+      "bytes": 1782,
+      "sha256": "d327bb214b65359500211cd840d6f7cafd55651bac3e8373b911f0511f21d5fb"
+    },
+    {
+      "archivo": "frontend/src/componentes/Marca.tsx",
+      "bytes": 2903,
+      "sha256": "1516b71154ebaf9104a4c6aee4306330428ed3dbcb2856240ef2eb383227788a"
+    },
+    {
+      "archivo": "frontend/src/componentes/OpcionesRender.tsx",
+      "bytes": 2279,
+      "sha256": "156491d4c14a05f4c73f1b9a4090e36f066332b9c7dea45d2eabe2bed095d35f"
+    },
+    {
+      "archivo": "frontend/src/componentes/PanelCodigo.tsx",
+      "bytes": 2269,
+      "sha256": "2d9507b3c82bc07d34776c3b9f95039a0dc3d2bd3a9bb6984e40dd5916c4bb05"
+    },
+    {
+      "archivo": "frontend/src/componentes/PreparacionEquipo.tsx",
+      "bytes": 7222,
+      "sha256": "63582e66e80ac7923604ddb76484d4421469cbd8d17ada781a36625fd51ec96c"
+    },
+    {
+      "archivo": "frontend/src/componentes/RecursosTrabajo.tsx",
+      "bytes": 2185,
+      "sha256": "d7e93ce516b51d1470f56b4d9d1747b839d1877879765cdfbfa46a1b86a76419"
+    },
+    {
+      "archivo": "frontend/src/componentes/TrabajosVivos.tsx",
+      "bytes": 4545,
+      "sha256": "5337bbfb26a4b3a1897a026a33fb3ddf8cd8ac71f5666023e6a5b71fe707b917"
+    },
+    {
+      "archivo": "frontend/src/componentes/preparacion.css",
+      "bytes": 2715,
+      "sha256": "c9cb372d9a556911851bf884f41d4e06c37b281cb7249179ac10baa824516b57"
+    },
+    {
+      "archivo": "frontend/src/estilos.css",
+      "bytes": 206,
+      "sha256": "e21a297b6ee44c8dc68cbea80497da086d5c8622e640e1ed13fa71acf2c17df2"
+    },
+    {
+      "archivo": "frontend/src/estilos/base.css",
+      "bytes": 5223,
+      "sha256": "bd630245a928fd96187ef499cc3c2dc59a5ff45a2981b2ba928cfe1d58a8191b"
+    },
+    {
+      "archivo": "frontend/src/estilos/componentes.css",
+      "bytes": 24307,
+      "sha256": "76025b6c53543bb43e4401d64f1dce15ce165058f540d6b4a99a25c0d3b57bd9"
+    },
+    {
+      "archivo": "frontend/src/estilos/inicio.css",
+      "bytes": 6929,
+      "sha256": "7ba0e3e79547b89e093452d5e4d6754d62961bad6d77980ce8db8a9d76c019d9"
+    },
+    {
+      "archivo": "frontend/src/estilos/pantallas.css",
+      "bytes": 15546,
+      "sha256": "b0f24dca2f0980625a7dc7044db0cba4300753cb559c15781fc2058c5ddcf8e5"
+    },
+    {
+      "archivo": "frontend/src/fuentes.ts",
+      "bytes": 2587,
+      "sha256": "c32875c01568d3fae6ac3e88baf220d37a70171faede8f3915adb370b015718c"
+    },
+    {
+      "archivo": "frontend/src/logica.ts",
+      "bytes": 8815,
+      "sha256": "de22b36c7766bac0deeb15b688d7b1ea74f9adcc636175f4b944031a99a75ccb"
+    },
+    {
+      "archivo": "frontend/src/main.tsx",
+      "bytes": 1743,
+      "sha256": "6fa7cd0e51028df699773ba4b2ea69fd260fb3edef6fec663ffca76929a6e5c6"
+    },
+    {
+      "archivo": "frontend/src/movimiento/entradas.ts",
+      "bytes": 1897,
+      "sha256": "b61c46ee6eac7fcc3336af767a2da6a49d20fb92666d6e25eca636853e96af3e"
+    },
+    {
+      "archivo": "frontend/src/movimiento/flip.ts",
+      "bytes": 1403,
+      "sha256": "af587f61f5b8a2093c0c783a394df92bef452e21ab50495684d83b9e468f5ba7"
+    },
+    {
+      "archivo": "frontend/src/movimiento/gsap.ts",
+      "bytes": 1578,
+      "sha256": "36c3f1378b49b2b419e2efa4cf0cce2c0acf4f961559b9f7099a7e2dcc65461a"
+    },
+    {
+      "archivo": "frontend/src/paginas/Ajustes.tsx",
+      "bytes": 7447,
+      "sha256": "c458bf07599722d98da11df3aa86792556b9c1edd3ce64dc062aefce2b4dbb15"
+    },
+    {
+      "archivo": "frontend/src/paginas/GuionEditor.tsx",
+      "bytes": 15045,
+      "sha256": "45933b8870633aeb7b8fc16f9e9d7bf2b96f3e2f1f835cce8dc45e56a79aa02c"
+    },
+    {
+      "archivo": "frontend/src/paginas/Inicio.tsx",
+      "bytes": 6000,
+      "sha256": "86b44017fc4bb31dd364ace4d0c43ddf3d7e5f55eb3ccebe7d402edf7642f1c2"
+    },
+    {
+      "archivo": "frontend/src/paginas/NuevoVideo.tsx",
+      "bytes": 24486,
+      "sha256": "6776ede31091591afbf822e9d05b404ed1ec36b89d67f5128e84c05597215084"
+    },
+    {
+      "archivo": "frontend/src/paginas/Proyecto.tsx",
+      "bytes": 5142,
+      "sha256": "eb11adf928bcca1ae9a896922aeb2d515a098f01e1892990a04a359925a2ce86"
+    },
+    {
+      "archivo": "frontend/src/paginas/Proyectos.tsx",
+      "bytes": 4180,
+      "sha256": "051b109e87818674cb9ca69ef20adf19f38708a734ad862c00714a1ba29cd801"
+    },
+    {
+      "archivo": "frontend/src/paginas/Resumen.tsx",
+      "bytes": 32266,
+      "sha256": "3eaf0f7f91288ed35b40c70593af8dc8bb02617c2f76bb517040f25e6b33cf31"
+    },
+    {
+      "archivo": "frontend/src/paginas/Revision.tsx",
+      "bytes": 5308,
+      "sha256": "423a3c760a3b4ac59755457ac01c729767842fb19ebe92a6db58a761740e4206"
+    },
+    {
+      "archivo": "frontend/src/paginas/VideoVista.tsx",
+      "bytes": 10962,
+      "sha256": "b2efeef97eec81b260176d23b95b8c8ee06369e064c4669d029abefbc777528e"
+    },
+    {
+      "archivo": "frontend/src/tipos.ts",
+      "bytes": 4987,
+      "sha256": "c11f6bc90da245848449efe3d2ff9567f249a3fd381c631c0e97eeed1fee39bc"
+    },
+    {
+      "archivo": "frontend/src/vite-env.d.ts",
+      "bytes": 76,
+      "sha256": "408d0b5a175bf491dc866ffad616e02c7558cf615c9a551efcf5fa354692038f"
+    },
+    {
+      "archivo": "frontend/tsconfig.json",
+      "bytes": 545,
+      "sha256": "0aa2f75e0b959be0c0a69e44518b07962645dd2fcbda1ce0477cc2de77cb45b5"
+    },
+    {
+      "archivo": "frontend/vite.config.ts",
+      "bytes": 1063,
+      "sha256": "b3c9645014f981cdce93facc03d77a87760baaac5d712d5b89952ebfedcc24cc"
+    },
+    {
+      "archivo": "pyproject.toml",
+      "bytes": 805,
+      "sha256": "85a86fc503670ad9d71bf4bd9da6eb46c4103a0d9b2870bdeb6259b97e2d4ed0"
+    },
+    {
+      "archivo": "restricciones-python.txt",
+      "bytes": 239,
+      "sha256": "3436a1100c18e70a89cd7a2318355a1118775ee1c7aa0b582f1119f3a1edd608"
+    },
+    {
+      "archivo": "src/videocodigo/__init__.py",
+      "bytes": 122,
+      "sha256": "0bfe960712bd5d104b1491f301f32cb1e84808ef920216dbec1e54a09c139597"
+    },
+    {
+      "archivo": "src/videocodigo/__main__.py",
+      "bytes": 52,
+      "sha256": "13a1a5b340cdcfc1902b62be90e508c7c71886000d5bf087e7854aadf09fb35e"
+    },
+    {
+      "archivo": "src/videocodigo/capturas.py",
+      "bytes": 6507,
+      "sha256": "fb33e3d8728594dd4805d6a54e900eddc51e2cc564397994c33e8eaf452fdf41"
+    },
+    {
+      "archivo": "src/videocodigo/cli.py",
+      "bytes": 7468,
+      "sha256": "e7a5a3c310190202c94b73f1148fd2172e47f2b71ef243eebed811b84cbf5378"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/__init__.py",
+      "bytes": 896,
+      "sha256": "8cd4f3a8eb6b21e80da6cc146ef03d00baaa0b42c1fcfebec31349ada3908154"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/arbol.py",
+      "bytes": 4966,
+      "sha256": "0aa19186c616541144380e229f517d539369dd395d6cabb11c0b585378445a6e"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/arreglo.py",
+      "bytes": 6536,
+      "sha256": "1a5e6e4e11112d9caf547b70c49c6ad7704bd477506af0b3a6e134d1ee23a470"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/codigo.py",
+      "bytes": 7662,
+      "sha256": "42a381870c7fcb7b608e2351e8fd07e8e4a4d9d077a159e72c95392b5967fa94"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/diagrama.py",
+      "bytes": 8836,
+      "sha256": "808e8f8089b93436e55f02bc18175b00ed6f11c860e07a773065091b6b585a65"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/estado.py",
+      "bytes": 3628,
+      "sha256": "f017aeee53ebb3d1bea8a8c1a990ecb224f277b3425bde05703eccafb594ebad"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/estructuras.py",
+      "bytes": 4354,
+      "sha256": "d0271c452bc7691363acdfef92666f8383183ceb191166024cfffdb8b1bddfc9"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/graficas.py",
+      "bytes": 4197,
+      "sha256": "6d7f3edf30a37cef9b5434f4cfba11180c75fe993e0844d044833e4d1487db19"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/grafo.py",
+      "bytes": 9475,
+      "sha256": "3d20e40d31bb79c5b0da6b748b0885a87b7943b588a227dee9347ec3c2f5815e"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/iconos.py",
+      "bytes": 13609,
+      "sha256": "d4bb0af00462257374b98c0c9b113b02d1ca0db2e2124289c8fda53e90a462f8"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/movimiento.py",
+      "bytes": 8892,
+      "sha256": "17643bdc5407ffbd99a72d606ecdd26453e5432f1637e72f5f1b14d1dd366a65"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/tabla.py",
+      "bytes": 3509,
+      "sha256": "4a4c3ac8acb41c4402008fa8741e3d859ee8aba0ae848ca8af4f82dd06831eb4"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/terminal.py",
+      "bytes": 10875,
+      "sha256": "2689b45e55af8c657b19b188c0341d74af5859fab63fd2081ec411de74529a7f"
+    },
+    {
+      "archivo": "src/videocodigo/componentes/textos.py",
+      "bytes": 6991,
+      "sha256": "5925a82a7456ed510738820241db602125a0218737657a8ee2189a0f1887c436"
+    },
+    {
+      "archivo": "src/videocodigo/config.py",
+      "bytes": 3766,
+      "sha256": "437b1697d8f219647b8f9e5774bfbc98326b6df3abeb45e67952a5d7cf70ec2d"
+    },
+    {
+      "archivo": "src/videocodigo/director.py",
+      "bytes": 17080,
+      "sha256": "f0d70952c1b5424e9fa288be09acd188e7b3147430ef19fff5770733b368dcc0"
+    },
+    {
+      "archivo": "src/videocodigo/director_codigo.py",
+      "bytes": 14860,
+      "sha256": "26e4d62a1f4b1012fe7242dbeac1ac7ad5651a3f9ddcb7533474b3f4b17b58bd"
+    },
+    {
+      "archivo": "src/videocodigo/duracion.py",
+      "bytes": 3528,
+      "sha256": "303329bffab9a437f3473682a1cbcdf2214f4970cd5e532bd2518c56c212a912"
+    },
+    {
+      "archivo": "src/videocodigo/escena_guion.py",
+      "bytes": 307,
+      "sha256": "f01b9065e40845da5b6d92a2b308b9cfb0c5c464b1a7220750f109dbf1ba6328"
+    },
+    {
+      "archivo": "src/videocodigo/estilo.py",
+      "bytes": 4063,
+      "sha256": "c6b1af8378315328eeaf9c9c0f8df34b944785990a91f0d98a96c762c3003e98"
+    },
+    {
+      "archivo": "src/videocodigo/eventos.py",
+      "bytes": 12800,
+      "sha256": "a7beaa5ab49bb4222415dd73387ce56dee8968b45954054d0d9031ef8270e5f4"
+    },
+    {
+      "archivo": "src/videocodigo/fondos.py",
+      "bytes": 2875,
+      "sha256": "dea280360fe44bf5ad45f7ac481409590f28bf804bc701fa23fa9cface9774e0"
+    },
+    {
+      "archivo": "src/videocodigo/guion.py",
+      "bytes": 14893,
+      "sha256": "b6058a991aa9b5d83a274c43d60fdf208d105d63ec4bf3ac05ae3d31e6a67f25"
+    },
+    {
+      "archivo": "src/videocodigo/ingesta.py",
+      "bytes": 7110,
+      "sha256": "eb1398b429ef96e65e5677bff8d50e743dcda5f93dc9c92952477a2fbd1eaa5c"
+    },
+    {
+      "archivo": "src/videocodigo/llm.py",
+      "bytes": 12382,
+      "sha256": "a4fdc9bcd5f30e3611e64b672a93d91c611e023e56e8c450829c8ed83f01aac5"
+    },
+    {
+      "archivo": "src/videocodigo/motor.py",
+      "bytes": 13095,
+      "sha256": "15d42b633a3be5d9ed695efc50a9b99eb295a22fcc8d0d02b9799ef30a972ba4"
+    },
+    {
+      "archivo": "src/videocodigo/motor_mov.py",
+      "bytes": 9418,
+      "sha256": "bec71fa970c6183dbb0dde519fd107197de690a81ad2b1ee04e92a06514122fe"
+    },
+    {
+      "archivo": "src/videocodigo/motor_traza.py",
+      "bytes": 13554,
+      "sha256": "64faf9260b00f0a8ff037d9793ec375f4ecdce3f150f4897a258d6ddef72dd0e"
+    },
+    {
+      "archivo": "src/videocodigo/narracion.py",
+      "bytes": 6305,
+      "sha256": "ce87e4acc85acc415bf68e7bf0f95fb5574bd724a5a9cacf87618a81cd4fe486"
+    },
+    {
+      "archivo": "src/videocodigo/prompts.py",
+      "bytes": 13067,
+      "sha256": "bd199540f2e71c5e483608152fc83d4f17ad6fbbb107091d20af926564b6e5d2"
+    },
+    {
+      "archivo": "src/videocodigo/proyecto.py",
+      "bytes": 22979,
+      "sha256": "155705ac2d213687b9204b40413636b531f266c05a5e205056e8b27d2b7635fa"
+    },
+    {
+      "archivo": "src/videocodigo/trazador.py",
+      "bytes": 6702,
+      "sha256": "cc5a702036971ac0bcb51b8189b6639234b2eb8261be77514cb5dc2c4deac439"
+    },
+    {
+      "archivo": "src/videocodigo/velocidades.py",
+      "bytes": 664,
+      "sha256": "d9ded1dae6b2fcad2e05d48d15f8f32214dea122bcfa000d7cd782cfdb6da658"
+    },
+    {
+      "archivo": "src/videocodigo/voz.py",
+      "bytes": 21338,
+      "sha256": "1b5128715b9d7ac9407dc1fa246edc81c97d89c757ef4d319e643f5b35fa426d"
+    },
+    {
+      "archivo": "src/videocodigo_web/__init__.py",
+      "bytes": 39,
+      "sha256": "9673e1c818d310e9ce512291982db27a5a5db2850eeca8cb11eb491b2e461ffa"
+    },
+    {
+      "archivo": "src/videocodigo_web/__main__.py",
+      "bytes": 4791,
+      "sha256": "07fde8953f1445acbd644c3630a42ce158143553733f783acf7895d1e5a77720"
+    },
+    {
+      "archivo": "src/videocodigo_web/aplicacion.py",
+      "bytes": 6430,
+      "sha256": "1604f5e395b65f862b12788c65e08bf60c120bb331cb894a941875212d3780ca"
+    },
+    {
+      "archivo": "src/videocodigo_web/archivos.py",
+      "bytes": 4424,
+      "sha256": "e4bdc2df4183d994844d6786430c2efd2e8db1f1e01516333a10ee3fd90eb3f0"
+    },
+    {
+      "archivo": "src/videocodigo_web/deteccion.py",
+      "bytes": 6705,
+      "sha256": "873ff40b276d3d30609f968f618f9fb5ab799687aadcc8432d598f9cc6a44658"
+    },
+    {
+      "archivo": "src/videocodigo_web/empaquetar_instalador.py",
+      "bytes": 2924,
+      "sha256": "67ae71b506e113a8be8eb14acb5fb7fba9f053dee6ed4525ce75b4fb22663822"
+    },
+    {
+      "archivo": "src/videocodigo_web/fuentes.py",
+      "bytes": 5538,
+      "sha256": "a6212bd141f170ca2b34f174c44b2ccebf3421af5565d94aac3b45847dbf218e"
+    },
+    {
+      "archivo": "src/videocodigo_web/guiones.py",
+      "bytes": 6407,
+      "sha256": "59dd184a3d19b34a9a3f28c97fe8124d403b5e53b372fd0559208ee47340433d"
+    },
+    {
+      "archivo": "src/videocodigo_web/medios.py",
+      "bytes": 10422,
+      "sha256": "21f3dbaadce4b9405082782276244c6e1c8d5aa8423aa7fa4a67169c90d42ef3"
+    },
+    {
+      "archivo": "src/videocodigo_web/preparacion.py",
+      "bytes": 9370,
+      "sha256": "3282b2fc8224d73425ce73afb325d31af5d8ed5f95bd87a4ba0fd5e2c145fe3e"
+    },
+    {
+      "archivo": "src/videocodigo_web/prioridad.py",
+      "bytes": 3314,
+      "sha256": "c050c5033771b701d076f5880b4b83122a1238549f026965306cba188633279a"
+    },
+    {
+      "archivo": "src/videocodigo_web/procesos.py",
+      "bytes": 22864,
+      "sha256": "cb00a68b37e00a12961c85003dd80219469403dd2695112df41ea019004d2b0d"
+    },
+    {
+      "archivo": "src/videocodigo_web/proyectos.py",
+      "bytes": 11759,
+      "sha256": "8859bd4b6eba80e90f98b4b98e12f3d0889b4bb6fb0707daef0f75e7e590180c"
+    },
+    {
+      "archivo": "src/videocodigo_web/prueba_voz.py",
+      "bytes": 869,
+      "sha256": "e76159aa193b3553f4b3960ad13d9426175cd4fb29c1fe9c34931bcc3252dc27"
+    },
+    {
+      "archivo": "src/videocodigo_web/recursos.py",
+      "bytes": 11317,
+      "sha256": "0dce39e137268800cdc5e63f9090795f7a8f3ef93af3eddd4e8c6456b176364f"
+    },
+    {
+      "archivo": "src/videocodigo_web/recursos_windows.py",
+      "bytes": 12633,
+      "sha256": "8f6cfb8350451700a37f009ab09fae45e2f4498b1b54c39d3400a71e1fb8bb5c"
+    },
+    {
+      "archivo": "src/videocodigo_web/seguridad.py",
+      "bytes": 4863,
+      "sha256": "e3b152baaa0fdfe9b5ee16186ea13ef7e90caafd25c54b2099c7f4686f92311a"
+    },
+    {
+      "archivo": "src/videocodigo_web/sistema.py",
+      "bytes": 10299,
+      "sha256": "4a7f5a5a0be241451bc48cf8f07bbcde885480da6b382f4ff06f9e47c4047e97"
+    },
+    {
+      "archivo": "src/videocodigo_web/supervisor.py",
+      "bytes": 5616,
+      "sha256": "aa030a9e014fb7d8ed4c82f6e3f29c47c89e67e5c5eabe5daa916f5c6ea2b7d7"
+    },
+    {
+      "archivo": "src/videocodigo_web/trabajos.py",
+      "bytes": 6100,
+      "sha256": "4bcbe643e50ee26de3f5b5ff3aca0ed3d13d32f9ff02b191b27323bb3a83cc71"
+    }
+  ],
+  "excluido": [
+    "datos y videos locales",
+    "grabaciones",
+    "credenciales",
+    "registros",
+    "pruebas",
+    "entornos y dependencias instaladas",
+    "documentación privada",
+    "muestras del diseño anterior"
+  ]
+}

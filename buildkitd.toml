@@ -1,0 +1,4 @@
+# Construccion secuencial para reducir el pico de memoria.
+# Los limites de CPU y RAM se pasan al crear el builder de Docker Buildx.
+[worker.oci]
+  max-parallelism = 1

@@ -1,0 +1,29 @@
+.vc-preparacion { display: grid; gap: var(--espacio-24); margin-bottom: var(--espacio-48); scroll-margin-top: 100px; }
+.vc-preparacion__cabecera { display: flex; align-items: start; justify-content: space-between; gap: var(--espacio-24); }
+.vc-preparacion__cabecera > div { max-width: 800px; }
+.vc-preparacion__cabecera .vc-subtitulo { margin-bottom: var(--espacio-8); }
+.vc-preparacion__cabecera .vc-boton { flex-shrink: 0; }
+.vc-preparacion__instalador { display: grid; gap: var(--espacio-16); padding: var(--espacio-24); border-radius: var(--radio-boton); background: var(--superficie); }
+.vc-preparacion__instalador h3 { margin: 0 0 var(--espacio-8); font-size: 20px; font-weight: 600; }
+.vc-preparacion__acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espacio-16); }
+.vc-preparacion__pasos { display: grid; gap: var(--espacio-8); margin: 0; padding-left: var(--espacio-24); }
+.vc-preparacion__pasos code { overflow-wrap: anywhere; }
+.vc-preparacion__modo { display: grid; gap: var(--espacio-8); padding: var(--espacio-24); border-radius: var(--radio-boton); background: var(--superficie); }
+.vc-preparacion p { margin: 0; }
+.vc-preparacion__modo p, .vc-preparacion__requisito > p { color: var(--texto-suave); }
+.vc-preparacion__lista { margin: 0; padding: 0; list-style: none; }
+.vc-preparacion__requisito { display: grid; gap: var(--espacio-8); padding: var(--espacio-24) 0; border-top: 1px solid var(--borde); }
+.vc-preparacion__nombre { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--espacio-12); }
+.vc-preparacion__nombre h3 { margin: 0; font-size: 18px; font-weight: 600; }
+.vc-preparacion__requisito > .vc-preparacion__para { color: var(--gris); font-size: 13px; }
+.vc-preparacion__comando { display: flex; align-items: center; gap: var(--espacio-16); min-width: 0; }
+.vc-preparacion__comando pre { flex: 1; min-width: 0; margin: 0; padding: var(--espacio-12) var(--espacio-16); overflow: auto; background: var(--superficie); font-size: 13px; }
+.vc-preparacion__comando .vc-boton { flex-shrink: 0; }
+.vc-preparacion__enlace { justify-self: start; color: var(--azul); }
+.vc-preparacion__notas { display: grid; gap: var(--espacio-8); margin: 0; padding-left: var(--espacio-24); color: var(--texto-suave); }
+@media (max-width: 767px) {
+  .vc-preparacion__cabecera, .vc-preparacion__comando { flex-direction: column; align-items: stretch; }
+  .vc-preparacion__cabecera .vc-boton, .vc-preparacion__comando .vc-boton { align-self: start; }
+  .vc-preparacion__acciones { align-items: start; flex-direction: column; }
+  .vc-preparacion__acciones .vc-boton { max-width: 100%; height: auto; white-space: normal; text-align: center; }
+}

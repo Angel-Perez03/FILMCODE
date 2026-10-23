@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@import "@fontsource-variable/archivo/wdth.css";
+@import "./estilos/base.css";
+@import "./estilos/componentes.css";
+@import "./estilos/pantallas.css";
+@import "./estilos/inicio.css";

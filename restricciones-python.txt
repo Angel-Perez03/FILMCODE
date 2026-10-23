@@ -1,0 +1,4 @@
+# Manim observado en el entorno del proyecto al preparar la distribucion.
+# El resto de dependencias y los extras web se declaran en pyproject.toml.
+# Esto es una restriccion del resolver, no un lock completo de transitivas.
+manim==0.22.0

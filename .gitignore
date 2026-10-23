@@ -1,0 +1,46 @@
+# Credenciales y configuracion particular.
+.env
+.env.*
+configuracion.local
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Proyectos, voces, videos, capturas, cache y registros de cada usuario.
+videos/
+.web/
+*.mp4
+*.webm
+*.mov
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.log
+
+# Entornos y salidas reproducibles.
+.venv/
+venv/
+node_modules/
+frontend/dist/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.tsbuildinfo
+build/
+dist/
+htmlcov/
+.coverage
+
+# Preferencias del equipo y material privado de desarrollo.
+.claude/
+.codex/
+.agents/
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store

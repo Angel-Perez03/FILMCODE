@@ -1,0 +1,30 @@
+# Copia este archivo como configuracion.local y ajusta tu propia voz.
+# No lo subas al repositorio. No uses direcciones de servicios en la nube.
+OLLAMA_URL=http://localhost:11434
+VIDEOCODIGO_MODELO=ollama:gemma4:12b
+VIDEOCODIGO_CONTEXTO=8192
+VIDEOCODIGO_MAX_TOKENS=2048
+VIDEOCODIGO_TEMPERATURA=0.4
+VIDEOCODIGO_FORMATO=libre
+
+VIDEOCODIGO_VOZ=voicestudio
+VOICESTUDIO_URL=http://localhost:3900
+# Es el identificador API de este proyecto; selecciona CosyVoice3 en VoiceStudio.
+VOICESTUDIO_MODELO=cosyvoice
+# Puedes dejarlo vacio y elegir tu perfil por nombre al crear cada video.
+# Para usar "Tu voz" como predeterminada, pega aqui el ID de tu propio perfil.
+VOICESTUDIO_VOZ=
+VOICESTUDIO_IDIOMA=es
+VOICESTUDIO_ESTILO=
+# Solo si tu instalacion de VoiceStudio exige autenticacion; vacio no contiene clave.
+OMNIVOICE_API_KEY=
+
+# Limites del contenedor FilmCode; no limitan Ollama ni VoiceStudio del anfitrion.
+# --env-file configuracion.local aplica estos valores a la interpolacion Compose.
+FILMCODE_CPU=4
+FILMCODE_RAM=4g
+
+# Solo para compose.publicado.yaml: referencia exacta publicada en Docker Hub.
+# Formato: cuenta/imagen:version, o cuenta/imagen@sha256:digest.
+# No hace falta configurar estos servicios ni la red host para publicar una imagen.
+FILMCODE_IMAGEN=angelitow/filmcode:0.2.0
