@@ -9,6 +9,7 @@ from pathlib import Path
 import psutil
 
 ORDENES = {"guion", "render", "continuar", "fotogramas", "hacer"}
+MODULOS_TRABAJO = {"videocodigo", "videocodigo_web.trabajo_video"}
 
 
 def proceso_vivo(pid: int | None, creado: float | None) -> psutil.Process | None:
@@ -46,10 +47,10 @@ def identificar(argumentos: list[str], raiz: Path, cwd: str = "") -> tuple[str, 
     resto = argumentos[indice + 2:]
     if modulo == "videocodigo_web.supervisor":
         if (len(resto) < 6 or not re.fullmatch(r"[a-f0-9]{32}", resto[0])
-                or not _es_python(Path(resto[1]).name) or resto[2:4] != ["-m", "videocodigo"]):
+                or not _es_python(Path(resto[1]).name) or resto[2] != "-m" or resto[3] not in MODULOS_TRABAJO):
             return None
         return identificar(resto[1:], raiz, cwd)
-    if modulo == "videocodigo" and len(resto) >= 2 and resto[0] in ORDENES:
+    if modulo in MODULOS_TRABAJO and len(resto) >= 2 and resto[0] in ORDENES:
         from videocodigo.proyecto import nombre_valido
 
         tipo = resto[0]
@@ -105,7 +106,7 @@ def externos(raiz: Path, propios: set[int]) -> list[dict]:
                 ejecutable = lanzador = Path(argumentos[indice + 3])
             mismo_entorno = (ejecutable.is_relative_to(raiz / ".venv")
                              or lanzador.is_relative_to(raiz / ".venv"))
-            if "videocodigo" in argumentos and not mismo_entorno and Path(cwd or ".").resolve() != raiz.resolve():
+            if MODULOS_TRABAJO.intersection(argumentos) and not mismo_entorno and Path(cwd or ".").resolve() != raiz.resolve():
                 continue
             ancestros = {padre.pid for padre in proceso.parents()}
             if ancestros & propios:

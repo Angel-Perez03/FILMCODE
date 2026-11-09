@@ -3,9 +3,11 @@ import type { Ajustes, CalidadRender, Escena, Guion, Json, Narrado, OpcionesTrab
 const CALIDADES_RENDER: CalidadRender[] = ['480p30', '480p60', '720p30', '720p60', '1080p30', '1080p60'];
 const FORMATOS_LEGACY: Record<string, string> = { borrador: '480p15', silencio: '480p15', alta: '1080p30', final: '1080p30', final60: '720p60' };
 export const AYUDA_PRIORIDAD = 'Baja habilita menos procesadores de CPU; Alta habilita más. El estado muestra la capacidad asignada y el margen de memoria. La GPU no tiene un tope porcentual.';
+export const VELOCIDAD_VOZ_PREDETERMINADA = 1.15;
 
 export function configRenderInicial(calidad?: string): CalidadRender {
-  const formato = FORMATOS_LEGACY[calidad ?? ''] ?? calidad;
+  const base = calidad?.replace(/-vertical$/, '');
+  const formato = FORMATOS_LEGACY[base ?? ''] ?? base;
   return CALIDADES_RENDER.find(c => c === formato) ?? (formato === '480p15' ? '480p30' : '720p30');
 }
 
@@ -29,11 +31,12 @@ export function tiempoLegible(segundos: number) {
   return resto ? `${horas} h ${resto} min` : `${horas} h`;
 }
 export function describirCalidad(calidad: string, perfil?: PerfilCalidad, voz?: string) {
-  const formato = perfil?.carpeta ?? FORMATOS_LEGACY[calidad] ?? calidad;
+  const base = calidad.replace(/-vertical$/, '');
+  const formato = perfil?.carpeta ?? FORMATOS_LEGACY[base] ?? base;
   const coincidencia = /^(\d+)p(\d+)$/.exec(formato);
   const alto = perfil?.resolucion ?? (coincidencia ? Number(coincidencia[1]) : undefined);
   const fps = perfil?.fps ?? (coincidencia ? Number(coincidencia[2]) : undefined);
-  const imagen = alto && fps ? `${alto}p · ${fps} FPS` : formato;
+  const imagen = (alto && fps ? `${alto}p · ${fps} FPS` : formato) + (calidad.endsWith('-vertical') ? ' · Vertical' : '');
   return { nombre: imagen, detalle: voz === undefined && perfil ? `${imagen} · ${describirVoz(perfil.voz)}` : imagen };
 }
 export function describirVoz(proveedor: string) {

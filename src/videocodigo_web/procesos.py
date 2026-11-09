@@ -20,12 +20,15 @@ from videocodigo.duracion import validar_minutos
 from videocodigo.velocidades import validar_velocidades
 
 from .archivos import archivo_seguro, carpeta_proyecto, escribir_json, invalidar_estado, leer_estado, leer_json
+from .bloqueo_exportacion import ExportacionEnCurso, bloquear_exportacion
 from .deteccion import detener_arbol, externos, proceso_vivo
+from .formato_video import calidad_base, calidad_salida, calidades_salida
 from .prioridad import aplicar_prioridad, leer_prioridad, mantener_prioridad
 from .seguridad import sanitizar
 
 PREFERENCIAS = {"calidad", "modelo", "capturar", "voz", "voz_edge", "voz_voicestudio", "prioridad_baja",
-               "duracion_objetivo_minutos", "velocidad_voz", "velocidad_animaciones", "voz_fluida"}
+               "duracion_objetivo_minutos", "velocidad_voz", "velocidad_animaciones", "voz_fluida", "orientacion"}
+VELOCIDAD_VOZ_PREDETERMINADA = 1.15
 
 
 def ahora() -> str:
@@ -103,7 +106,7 @@ class GestorTrabajos:
                     continue
                 etapa = estado.get("etapa", "")
                 reciente = estado.get("actualizado", "") >= trabajo.get("inicio", "~")
-                final = "terminado" if reciente and etapa in proyecto.CALIDADES else "interrumpido"
+                final = "terminado" if reciente and etapa in calidades_salida() else "interrumpido"
                 if reciente and etapa == "error":
                     final = "error"
                 trabajo.update(estado=final, fin=ahora(), mensaje=estado.get("mensaje") or "El proceso ya no está activo")
@@ -212,13 +215,21 @@ class GestorTrabajos:
             try:
                 duracion = validar_minutos(elegidas.get("duracion_objetivo_minutos"))
                 velocidad_voz, velocidad_animaciones = validar_velocidades(
-                    elegidas.get("velocidad_voz"), elegidas.get("velocidad_animaciones"))
+                    elegidas.get("velocidad_voz", VELOCIDAD_VOZ_PREDETERMINADA), elegidas.get("velocidad_animaciones"))
             except ValueError as error:
                 raise HTTPException(422, str(error)) from error
             tipo = elegidas.get("tipo")
             calidad = elegidas.get("calidad", proyecto.CALIDAD_PREDETERMINADA)
-            if tipo not in {"guion", "render", "continuar", "fotogramas"} or calidad not in proyecto.CALIDADES:
+            orientacion = elegidas.get("orientacion", "horizontal")
+            if tipo not in {"guion", "render", "continuar", "fotogramas"}:
                 raise HTTPException(422, "Tipo de trabajo o calidad no válidos.")
+            try:
+                base = calidad_base(calidad)
+                if tipo != "fotogramas" and calidad != base:
+                    raise ValueError("Elige la orientación por separado de la calidad.")
+                salida = calidad if tipo == "fotogramas" else calidad_salida(base, orientacion)
+            except ValueError as error:
+                raise HTTPException(422, str(error)) from error
             modelo = elegidas.get("modelo")
             if modelo and (not isinstance(modelo, str) or not re.fullmatch(r"(?:ollama:)?[a-zA-Z0-9][a-zA-Z0-9_.:/-]{0,180}", modelo) or modelo.startswith("openai:")):
                 raise HTTPException(422, "Selecciona un modelo local de Ollama.")
@@ -227,7 +238,10 @@ class GestorTrabajos:
                 raise HTTPException(422, "La voz seleccionada no es válida.")
             if not self._comando_prueba:
                 comprobar_para_trabajo(nombre, elegidas)
-            comando = [sys.executable, "-m", "videocodigo", tipo, nombre]
+            adaptado = (tipo == "fotogramas" and calidad != base) or (
+                tipo != "fotogramas" and (duracion is not None or (tipo != "guion" and orientacion == "vertical")))
+            modulo = "videocodigo_web.trabajo_video" if adaptado else "videocodigo"
+            comando = [sys.executable, "-m", modulo, tipo, nombre]
             if tipo in {"render", "continuar", "fotogramas"}:
                 if tipo != "fotogramas":
                     comando += ["--velocidad-voz", str(velocidad_voz), "--velocidad-animaciones", str(velocidad_animaciones)]
@@ -245,6 +259,14 @@ class GestorTrabajos:
                     comando += ["--modelo", modelo]
                 if elegidas.get("capturar") is False:
                     comando.append("--sin-capturas")
+            if adaptado and tipo != "fotogramas":
+                comando += ["--orientacion", orientacion]
+                if tipo == "render" and duracion is not None:
+                    comando += ["--duracion-minutos", str(duracion)]
+                if tipo == "guion":
+                    comando += ["--velocidad-voz", str(velocidad_voz), "--velocidad-animaciones", str(velocidad_animaciones)]
+                    if elegidas.get("voz_fluida") is False:
+                        comando.append("--sin-voz-fluida")
             entorno = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONUNBUFFERED": "1",
                        "VIDEOCODIGO_RAIZ": str(self.raiz), "NO_PROXY": "localhost,127.0.0.1,::1",
                        "no_proxy": "localhost,127.0.0.1,::1"}
@@ -270,7 +292,7 @@ class GestorTrabajos:
                 creado = psutil.Process(proceso.pid).create_time()
             except (OSError, psutil.Error) as error:
                 raise HTTPException(500, "No se pudo iniciar el proceso de FilmCode.") from error
-            trabajo = {"id": identificador, "proyecto": nombre, "tipo": tipo, "calidad": calidad,
+            trabajo = {"id": identificador, "proyecto": nombre, "tipo": tipo, "calidad": salida,
                        "estado": "corriendo", "inicio": ahora(), "fin": None, "progreso": None,
                        "mensaje": "Iniciando trabajo", "resultado": None, "error": None,
                        "lineas": [], "lineas_total": 0, "pid": proceso.pid, "proceso_creado": creado,
@@ -279,7 +301,8 @@ class GestorTrabajos:
             self._trabajos[identificador] = trabajo
             self._procesos[identificador] = proceso
             try:
-                escribir_json(ruta_preferencias, {k: v for k, v in elegidas.items() if k in PREFERENCIAS})
+                guardadas = preferencias if tipo == "fotogramas" else {**elegidas, "velocidad_voz": velocidad_voz, "orientacion": orientacion}
+                escribir_json(ruta_preferencias, {k: v for k, v in guardadas.items() if k in PREFERENCIAS})
                 self._guardar(True)
             except Exception:
                 vivo = proceso_vivo(proceso.pid, creado)
@@ -382,18 +405,22 @@ class GestorTrabajos:
             vivo = proceso_vivo(trabajo.get("pid"), trabajo.get("proceso_creado"))
             if vivo is None:
                 raise HTTPException(409, "El proceso ya terminó o su identidad cambió.")
+            carpeta = carpeta_proyecto(trabajo["proyecto"])
             trabajo["cancelando"] = True
         try:
-            detener_arbol(vivo)
-        except PermissionError as error:
+            with bloquear_exportacion(carpeta):
+                detener_arbol(vivo)
+        except (OSError, ExportacionEnCurso, HTTPException) as error:
             with self.bloqueo:
                 trabajo["cancelando"] = False
-            raise HTTPException(409, str(error)) from error
+            if isinstance(error, HTTPException):
+                raise
+            mensaje = str(error) if isinstance(error, (ExportacionEnCurso, PermissionError)) else "No se pudo cancelar el trabajo."
+            raise HTTPException(409, mensaje) from error
         with self.bloqueo:
             trabajo.update(estado="cancelado", fin=ahora(), mensaje="Trabajo cancelado por el usuario", error=None)
             self._trabajos[identificador] = trabajo
             self._externos.pop(identificador, None)
-            carpeta = carpeta_proyecto(trabajo["proyecto"])
             tiene_guion = archivo_seguro(carpeta, "guion.json").is_file()
             archivo_seguro(carpeta, "estado.json")
             archivo_seguro(carpeta, "estado.tmp")

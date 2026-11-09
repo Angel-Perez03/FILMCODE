@@ -3,8 +3,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { baseProyecto, enviar, refrescarSalud, useDatos } from '../api';
-import type { Ajustes, Detalle, FaseRender, OpcionesTrabajo, Salud, Trabajo, Voces } from '../tipos';
-import { AYUDA_PRIORIDAD, configRenderInicial, describirCalidad, describirVoz, duracion, fechaCorta, numero, opcionesDeVoz, opcionesVoz, separarVoz, siguiente, tiempoLegible, vozInicial } from '../logica';
+import type { Ajustes, Detalle, FaseRender, OpcionesTrabajo, Orientacion, Salud, Trabajo, Voces } from '../tipos';
+import { AYUDA_PRIORIDAD, VELOCIDAD_VOZ_PREDETERMINADA, configRenderInicial, describirCalidad, describirVoz, duracion, fechaCorta, numero, opcionesDeVoz, opcionesVoz, separarVoz, siguiente, tiempoLegible, vozInicial } from '../logica';
 import { avisar, Insignia, Mensaje, Progreso, Terminal } from '../componentes/Comun';
 import { Selector, useConfirmar } from '../componentes/Controles';
 import { OpcionesRender } from '../componentes/OpcionesRender';
@@ -26,12 +26,13 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
   const enDocker = ajustes.data?.capacidades?.modo === 'docker';
   const [voz, setVoz] = useState('');
   const [calidad, setCalidad] = useState<string>(() => configRenderInicial(p.preferencias?.calidad));
+  const [orientacion, setOrientacion] = useState<Orientacion>(() => p.preferencias?.orientacion ?? 'horizontal');
   const [prioridadBaja, setPrioridadBaja] = useState(p.preferencias?.prioridad_baja ?? true);
   const [cambiandoPrioridad, setCambiandoPrioridad] = useState(false);
   const [duracionObjetivo, setDuracionObjetivo] = useState(() => p.preferencias?.duracion_objetivo_minutos?.toString() ?? '');
   const [entradaDuracionInvalida, setEntradaDuracionInvalida] = useState(false);
   const [guardandoDuracion, setGuardandoDuracion] = useState(false);
-  const [velocidadVoz, setVelocidadVoz] = useState(() => (p.preferencias?.velocidad_voz ?? 1).toString());
+  const [velocidadVoz, setVelocidadVoz] = useState(() => (p.preferencias?.velocidad_voz ?? VELOCIDAD_VOZ_PREDETERMINADA).toString());
   const [velocidadAnimaciones, setVelocidadAnimaciones] = useState(() => (p.preferencias?.velocidad_animaciones ?? 1).toString());
   const [vozFluida, setVozFluida] = useState(p.preferencias?.voz_fluida ?? false);
   const [vozInvalida, setVozInvalida] = useState(false), [animacionesInvalidas, setAnimacionesInvalidas] = useState(false);
@@ -40,7 +41,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
   const cliente = useQueryClient(), confirmar = useConfirmar();
   const trabajo = trabajos.data?.find(t => t.id === p.trabajo?.id) ?? p.trabajo;
   const ultimoTrabajo = trabajos.data?.filter(t => t.proyecto === p.nombre).sort((a, b) => b.inicio.localeCompare(a.inicio))[0];
-  const registro = useDatos<{lineas: string[]}>(`${baseProyecto(p.nombre)}/log/${calidad}?lineas=200`, undefined, p.situacion === 'error');
+  const registro = useDatos<{lineas: string[]}>(`${baseProyecto(p.nombre)}/log/${ultimoTrabajo?.calidad ?? (orientacion === 'vertical' ? `${calidad}-vertical` : calidad)}?lineas=200`, undefined, p.situacion === 'error');
   const lineas = trabajo?.lineas.length ? trabajo.lineas : ultimoTrabajo?.lineas.length ? ultimoTrabajo.lineas : registro.data?.lineas ?? [];
   const accion = p.tiene_guion && !p.situacion.startsWith('en_curso') ? 'render' : siguiente(p);
   const ocupado = accion === 'cancelar', externo = p.situacion === 'en_curso_externo';
@@ -59,7 +60,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
   const duracionValida = !entradaDuracionInvalida && (minutosObjetivo == null || (Number.isFinite(minutosObjetivo) && minutosObjetivo >= 1 && minutosObjetivo <= 120));
   const duracionModificada = minutosObjetivo !== duracionGuardada;
   const inicioBloqueadoPorDuracion = guardandoDuracion || duracionModificada || !duracionValida;
-  const velocidadVozGuardada = p.preferencias?.velocidad_voz ?? 1, velocidadAnimacionesGuardada = p.preferencias?.velocidad_animaciones ?? 1;
+  const velocidadVozGuardada = p.preferencias?.velocidad_voz ?? VELOCIDAD_VOZ_PREDETERMINADA, velocidadAnimacionesGuardada = p.preferencias?.velocidad_animaciones ?? 1;
   const vozFluidaGuardada = p.preferencias?.voz_fluida ?? false;
   const factorVoz = Number(velocidadVoz), factorAnimaciones = Number(velocidadAnimaciones);
   const velocidadVozValida = !vozInvalida && velocidadVoz.trim() !== '' && Number.isFinite(factorVoz) && factorVoz >= 0.75 && factorVoz <= 1.5;
@@ -69,9 +70,10 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
   const inicioBloqueado = inicioBloqueadoPorDuracion || guardandoVelocidades || velocidadesModificadas || !velocidadesValidas;
   useEffect(() => { setPrioridadBaja(p.preferencias?.prioridad_baja ?? true); }, [p.nombre, p.preferencias?.prioridad_baja]);
   useEffect(() => { setCalidad(configRenderInicial(p.preferencias?.calidad)); }, [p.nombre, p.preferencias?.calidad]);
+  useEffect(() => { setOrientacion(p.preferencias?.orientacion ?? 'horizontal'); }, [p.nombre, p.preferencias?.orientacion]);
   useEffect(() => { setDuracionObjetivo(p.preferencias?.duracion_objetivo_minutos?.toString() ?? ''); setEntradaDuracionInvalida(false); }, [p.nombre, p.preferencias?.duracion_objetivo_minutos]);
   useEffect(() => {
-    setVelocidadVoz((p.preferencias?.velocidad_voz ?? 1).toString());
+    setVelocidadVoz((p.preferencias?.velocidad_voz ?? VELOCIDAD_VOZ_PREDETERMINADA).toString());
     setVelocidadAnimaciones((p.preferencias?.velocidad_animaciones ?? 1).toString());
     setVozFluida(p.preferencias?.voz_fluida ?? false);
     setVozInvalida(false); setAnimacionesInvalidas(false);
@@ -110,7 +112,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
 
   async function lanzar(elegidas: OpcionesTrabajo) {
     if (inicioBloqueado) return;
-    const opciones: OpcionesTrabajo = { ...elegidas, ...(elegidas.voz ? {} : opcionesDeVoz(voz)), prioridad_baja: prioridadBaja, velocidad_voz: factorVoz, velocidad_animaciones: factorAnimaciones, voz_fluida: vozFluida };
+    const opciones: OpcionesTrabajo = { ...elegidas, ...(elegidas.voz ? {} : opcionesDeVoz(voz)), orientacion, prioridad_baja: prioridadBaja, velocidad_voz: factorVoz, velocidad_animaciones: factorAnimaciones, voz_fluida: vozFluida };
     setProcesando(true);
     try { await enviar(`${baseProyecto(p.nombre)}/trabajos`, opciones); await cliente.invalidateQueries(); avisar('Trabajo iniciado. Puedes seguirlo aquí o en la barra de arriba.'); }
     catch (e) { avisar((e as Error).message, true); } finally { setProcesando(false); }
@@ -123,7 +125,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
       cliente.setQueryData<Detalle>([baseProyecto(p.nombre)], actual => actual ? { ...actual, preferencias: { ...actual.preferencias, ...preferencia } } : actual);
       setDuracionObjetivo(preferencia.duracion_objetivo_minutos?.toString() ?? '');
       await cliente.invalidateQueries();
-      avisar('Duración guardada. Se aplicará al generar un guion nuevo.');
+      avisar('Duración guardada. Se aplicará al próximo render.');
     } catch (e) { avisar((e as Error).message, true); } finally { setGuardandoDuracion(false); }
   }
   async function guardarVelocidades() {
@@ -141,7 +143,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
   async function reescribirGuion() {
     if (!p.tiene_guion || ocupado || procesando || cambiandoPrioridad || inicioBloqueado || !salud.data?.ollama.listo) return;
     const ok = await confirmar({
-      titulo: duracionGuardada == null ? '¿Reescribir el guion?' : `¿Reescribir el guion para unos ${numero(duracionGuardada, 2)} minutos?`,
+      titulo: duracionGuardada == null ? '¿Reescribir el guion?' : `¿Reescribir el guion para un video de ${duracion(duracionGuardada * 60)}?`,
       texto: <p>Se generará una versión nueva y se conservará el guion anterior. Los videos actuales quedarán desactualizados.</p>,
       aceptar: 'Reescribir guion',
     });
@@ -232,16 +234,16 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
       {video && <Link className="vc-boton vc-boton--texto justify-self-start" to={`/proyectos/${encodeURIComponent(p.nombre)}?vista=video`}>Ver el video disponible{p.videos.every(v => v.desactualizado) ? ' (guion anterior)' : ''}</Link>}
       <section className="grid gap-4" aria-labelledby="opciones-render-proyecto-titulo">
         <h3 id="opciones-render-proyecto-titulo" className="m-0 text-base font-semibold">Opciones del video</h3>
-        <OpcionesRender calidad={calidad} cambiar={setCalidad} deshabilitado={ocupado || procesando || guardandoDuracion || guardandoVelocidades || cambiandoPrioridad}/>
+        <OpcionesRender calidad={calidad} cambiar={setCalidad} orientacion={orientacion} cambiarOrientacion={setOrientacion} deshabilitado={ocupado || procesando || guardandoDuracion || guardandoVelocidades || cambiandoPrioridad}/>
         <div className="vc-campo"><span className="vc-campo__etiqueta">Voz</span><div><Selector etiqueta="Voz" valor={voz} cambiar={setVoz} deshabilitado={ocupado || procesando} opciones={opcionesVoces}/></div><span className="vc-campo__ayuda">La voz se elige por separado de la resolución y los cuadros por segundo.</span></div>
       </section>
       <div className={`vc-campo${duracionValida ? '' : ' vc-campo--error'}`}>
-        <label className="vc-campo__etiqueta" htmlFor="duracion-objetivo-proyecto">Duración del video final en minutos (opcional)</label>
+        <label className="vc-campo__etiqueta" htmlFor="duracion-objetivo-proyecto">Duración fija del video (minutos, opcional)</label>
         <div className="vc-fila-botones vc-duracion-objetivo">
           <input id="duracion-objetivo-proyecto" className="vc-campo__entrada" type="number" min={1} max={120} step="any" placeholder="Libre" value={duracionObjetivo} disabled={ocupado || procesando || guardandoDuracion || guardandoVelocidades} onChange={e => { setDuracionObjetivo(e.target.value); setEntradaDuracionInvalida(e.target.validity.badInput); }} aria-invalid={!duracionValida} aria-describedby="duracion-objetivo-proyecto-ayuda"/>
           <button className="vc-boton" disabled={ocupado || procesando || guardandoDuracion || guardandoVelocidades || !duracionValida || !duracionModificada} onClick={() => void guardarDuracion()}>{guardandoDuracion ? 'Guardando…' : 'Guardar duración'}</button>
         </div>
-        <span id="duracion-objetivo-proyecto-ayuda" className={duracionValida ? 'vc-campo__ayuda' : 'vc-campo__error'}>{!duracionValida ? 'Escribe una duración de 1 a 120 minutos o deja el campo vacío.' : ocupado ? 'Puedes cambiar el objetivo cuando termine el trabajo actual.' : 'Se aplica al generar un guion nuevo. No reescala la voz ni modifica un guion existente. Vacío significa duración libre.'}</span>
+        <span id="duracion-objetivo-proyecto-ayuda" className={duracionValida ? 'vc-campo__ayuda' : 'vc-campo__error'}>{!duracionValida ? 'Escribe una duración de 1 a 120 minutos o deja el campo vacío.' : ocupado ? 'Puedes cambiar la duración cuando termine el trabajo actual.' : 'Al renderizar, FilmCode puede abreviar el guion y conserva una copia del anterior. La duración se verifica antes de guardar el video. Déjalo vacío para duración libre.'}</span>
         {duracionModificada && !ocupado && <span className="vc-campo__ayuda" role="status">Guarda la duración antes de iniciar otro trabajo.</span>}
       </div>
       {p.tiene_guion && !ocupado && <div className="vc-fila-botones">
@@ -257,7 +259,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
               <output htmlFor="velocidad-voz-proyecto">{velocidadVozValida ? `${numero(factorVoz, 2)}×` : '—'}</output>
               <button type="button" className="vc-boton vc-boton--chico" disabled={ocupado || procesando || guardandoVelocidades || guardandoDuracion || cambiandoPrioridad} onClick={() => { setVelocidadVoz('1'); setVozInvalida(false); }} aria-label="Restablecer la velocidad de la voz a 1×">Restablecer 1×</button>
             </div>
-            <span id="velocidad-voz-proyecto-ayuda" className="vc-campo__ayuda">De 0,75× a 1,5×. Cambia el ritmo y conserva el tono de la voz.</span>
+            <span id="velocidad-voz-proyecto-ayuda" className="vc-campo__ayuda">De 0,75× a 1,5×. Prueba 1,15× o 1,20× si la voz suena lenta.</span>
           </div>
           <div className={`vc-campo${velocidadAnimacionesValida ? '' : ' vc-campo--error'}`}>
             <label className="vc-campo__etiqueta" htmlFor="velocidad-animaciones-proyecto">Velocidad de las animaciones</label>
@@ -282,7 +284,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
         <h3 id="resumen-render-proyecto-titulo" className="m-0 text-base font-semibold">{p.tiene_guion ? 'Video que vas a renderizar' : 'Opciones seleccionadas'}</h3>
         <p className="m-0"><strong>{describirCalidad(calidad).nombre}</strong> · {nombreVoz}</p>
         <p className="vc-nota">{velocidadesValidas ? `Voz ${numero(factorVoz, 2)}× · Animaciones ${numero(factorAnimaciones, 2)}× · Narración continua ${vozFluida ? 'activada' : 'desactivada'}` : 'Revisa las velocidades antes de iniciar.'}</p>
-        <p className="vc-nota">Duración objetivo: {duracionGuardada == null ? 'libre' : `${numero(duracionGuardada, 2)} min`} · Prioridad {prioridadBaja ? 'baja' : 'alta'}</p>
+        <p className="vc-nota">{orientacion === 'vertical' ? 'Vertical · 9:16' : 'Horizontal · 16:9'} · Duración: {duracionGuardada == null ? 'libre' : duracion(duracionGuardada * 60)} · Prioridad {prioridadBaja ? 'baja' : 'alta'}</p>
         <div className="vc-fila-botones"><button className="vc-boton vc-boton--principal vc-boton--grande" disabled={procesando || cambiandoPrioridad || Boolean(bloqueado) || (!['ver', 'corregir'].includes(accion) && inicioBloqueado)} onClick={() => void actuar()}>{procesando ? 'Un momento…' : ETIQUETAS[accion]}</button></div>
       </section>}
       {lineas.length > 0 && <details className="vc-plegable">
@@ -297,16 +299,17 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
     <aside className="grid gap-6 content-start">
       {video ? <figure className="m-0 grid gap-3">
         <img className="vc-marco" src={p.miniatura} alt={`Fotograma de ${p.titulo}`} data-flip-id={`miniatura-${p.nombre}`} ref={aplicarFlip}/>
-        <figcaption className="vc-nota">{describirCalidad(video.calidad).nombre} · {duracion(video.duracion)} · {numero(video.megas)} MB{video.desactualizado ? ' · desactualizado' : ''}</figcaption>
+        <figcaption className="vc-nota">{describirCalidad(video.calidad).nombre} · {numero(video.megas)} MB{video.desactualizado ? ' · desactualizado' : ''}</figcaption>
       </figure> : <div className="vc-marco vc-marco--vacio">Sin video todavía</div>}
       <dl className="vc-datos">
         <dt>Fuente</dt><dd>{p.manifiesto.fuente.copia}</dd>
         {p.estado.guion?.escenas ? <><dt>Guion</dt><dd>{p.estado.guion.escenas} escenas · {numero(p.estado.guion.caracteres ?? 0, 0)} caracteres</dd></> : null}
-        <dt>Duración objetivo</dt><dd>{duracionGuardada == null ? 'Libre' : `${numero(duracionGuardada, 2)} min`}</dd>
-        <dt>Velocidad de voz</dt><dd>{numero(velocidadVozGuardada, 2)}×</dd>
+        <dt>Duración para la próxima exportación</dt><dd>{duracionGuardada == null ? 'Libre' : duracion(duracionGuardada * 60)}</dd>
+        {duracionEstimada != null && duracionEstimada > 0 ? <><dt>Estimación del guion actual</dt><dd>Unos {duracion(duracionEstimada)}</dd></> : null}
+        {video && Number.isFinite(video.duracion) && video.duracion > 0 ? <><dt>Duración del último video exportado</dt><dd>{duracion(video.duracion)}{video.desactualizado ? ' · guion anterior' : ''}</dd></> : null}
+        <dt>Voz para el próximo render</dt><dd>{numero(velocidadVozGuardada, 2)}×</dd>
         <dt>Velocidad de animaciones</dt><dd>{numero(velocidadAnimacionesGuardada, 2)}×</dd>
         <dt>Narración continua</dt><dd>{vozFluidaGuardada ? 'Activada' : 'Desactivada'}</dd>
-        {duracionEstimada != null && duracionEstimada > 0 ? <><dt>Duración estimada del guion</dt><dd>unos {tiempoLegible(duracionEstimada)}</dd></> : null}
         {p.estado.guion?.modelo ? <><dt>Modelo</dt><dd>{p.estado.guion.modelo}</dd></> : null}
       </dl>
       <button className="vc-boton vc-boton--texto justify-self-start" onClick={() => ir('codigo')}>Ver el código de la fuente</button>

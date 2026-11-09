@@ -131,6 +131,7 @@
 .vc-marco { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radio-marco); background: var(--superficie); }
 .vc-marco--4x5 { aspect-ratio: 4 / 5; }
 .vc-marco--4x3 { aspect-ratio: 4 / 3; }
+.vc-reproductor .vc-marco--vertical { aspect-ratio: 9 / 16; object-fit: contain; width: min(100%, 40vh); justify-self: center; }
 .vc-marco--vacio { display: grid; place-items: center; color: var(--gris); font-size: 13px; font-weight: 500; }
 /* Carrete: una tira de fotogramas que asoman arriba y abajo del central; --h es el alto de cada uno. */
 .vc-carrete { --h: calc(100cqw * 9 / 16); position: relative; height: calc(var(--h) + 2 * (var(--carrete-asoma) + var(--espacio-24))); overflow: hidden; }

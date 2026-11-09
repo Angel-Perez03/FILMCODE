@@ -13,11 +13,12 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse, Response
-from videocodigo import guion, ingesta, proyecto, voz
+from videocodigo import guion, ingesta, voz
 
 from .archivos import (archivo_seguro, carpeta_proyecto, carpeta_web, es_enlace,
                        leer_estado, leer_json)
 from .fuentes import admitido
+from .formato_video import calidades_salida
 from .proyectos import videos_disponibles
 from .seguridad import sanitizar
 
@@ -26,7 +27,7 @@ _miniaturas = threading.Lock()
 
 
 def calidad_valida(calidad: str) -> str:
-    if calidad not in proyecto.CALIDADES:
+    if calidad not in calidades_salida():
         raise HTTPException(400, "Calidad desconocida.")
     return calidad
 
@@ -95,17 +96,24 @@ def narrado(nombre: str, calidad: str):
     datos = leer_json(archivo, {})
     if not isinstance(datos, dict):
         raise HTTPException(422, "La narración debe ser un objeto JSON.")
+    if isinstance(datos.get("capitulos"), list):
+        return datos  # Copia del guion que produjo este video, con sus tiempos de exportación.
     documento = leer_json(archivo_seguro(carpeta_proyecto(nombre), "guion.json"), {})
     return {**datos, "capitulos": capitulos_de(documento if isinstance(documento, dict) else {}, datos)}
 
 
 @router.get("/proyectos/{nombre}/hojas/{calidad}")
 def hojas(nombre: str, calidad: str):
-    carpeta = archivo_seguro(carpeta_proyecto(nombre), f"salida/hojas_{calidad_valida(calidad)}")
-    if not carpeta.is_dir():
+    calidad_valida(calidad)
+    base = carpeta_proyecto(nombre)
+    carpeta = archivo_seguro(base, f"salida/hojas_{calidad}")
+    video = archivo_seguro(base, f"salida/{calidad}.mp4")
+    if not carpeta.is_dir() or not video.is_file():
         return []
+    fecha = video.stat().st_mtime_ns
     return [ruta.name for ruta in sorted(carpeta.glob("hoja_*.jpg"))
-            if ruta.is_file() and not es_enlace(ruta) and re.fullmatch(r"hoja_\d+\.jpg", ruta.name)]
+            if ruta.is_file() and not es_enlace(ruta) and re.fullmatch(r"hoja_\d+\.jpg", ruta.name)
+            and ruta.stat().st_mtime_ns >= fecha]
 
 
 @router.get("/proyectos/{nombre}/hojas/{calidad}/{archivo}")
@@ -113,6 +121,9 @@ def hoja(nombre: str, calidad: str, archivo: str):
     if not re.fullmatch(r"hoja_\d+\.jpg", archivo):
         raise HTTPException(400, "Nombre de hoja inválido.")
     ruta = existente(nombre, f"salida/hojas_{calidad_valida(calidad)}/{archivo}")
+    video = existente(nombre, f"salida/{calidad}.mp4")
+    if ruta.stat().st_mtime_ns < video.stat().st_mtime_ns:
+        raise HTTPException(404, "Vuelve a generar las hojas para este video.")
     return FileResponse(ruta, media_type="image/jpeg")
 
 

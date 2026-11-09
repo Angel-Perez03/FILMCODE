@@ -12,6 +12,7 @@
   <p><strong>React + Python · Manim · Ollama · Tu propia voz</strong></p>
 
   <p>
+    <a href="#actualizar">Actualizar FilmCode</a> ·
     <a href="#instalar">Instalar en Windows</a> ·
     <a href="#primer-video">Crear tu primer video</a> ·
     <a href="#problemas">Resolver problemas</a> ·
@@ -33,18 +34,37 @@ Puedes importar archivos o un ZIP, ajustar la duración y el formato, consultar 
 guion y seguir el progreso de cada etapa. Cada proyecto conserva sus resultados
 para poder retomarlo.
 
-> [!TIP]
-> **La forma más sencilla de empezar es usar la imagen ya preparada.**
-> Con Docker, Python, Node, Manim y FFmpeg vienen resueltos: no tienes que
-> instalarlos en Windows ni compilar el proyecto.
+<a id="actualizar"></a>
+
+## Actualizar una instalación existente
+
+Esta versión añade **duración fija**, **voz a 1,15× por defecto** y exportación
+**horizontal (16:9) o vertical (9:16)**. Si instalaste FilmCode con Docker,
+espera a que terminen los trabajos y ejecuta lo siguiente en la carpeta del
+repositorio, con Docker abierto:
+
+```powershell
+git pull --ff-only
+docker compose --env-file configuracion.local build
+docker compose --env-file configuracion.local up -d --no-build --pull never
+```
+
+Si instalaste desde un ZIP, descarga y extrae el código actualizado y usa en
+esa carpeta tu `configuracion.local` existente. Ejecuta allí los dos comandos
+de Docker. En ambos casos se conservan los proyectos y la caché en los volúmenes
+de Compose. Abre [FilmCode](http://127.0.0.1:8765) y recarga la página.
+
+Estos comandos usan `compose.yaml` y construyen desde el código actualizado.
+La imagen anterior `angelitow/filmcode:0.2.0` sigue disponible; para usar estas
+funciones construye desde el repositorio en vez de descargar esa etiqueta.
 
 <a id="instalar"></a>
 
 ## Instalar en Windows
 
-Esta guía usa **Windows x64**, **Docker Desktop con contenedores Linux** y la
-imagen **`angelitow/filmcode:0.2.0`**. También hay instrucciones para Linux
-[al final](#avanzado). La imagen publicada es para **Linux amd64**.
+Esta guía usa **Windows x64** y **Docker Desktop con contenedores Linux**.
+Docker construye la versión de FilmCode de esta carpeta con Python, Node, Manim
+y FFmpeg. También hay instrucciones para Linux [al final](#avanzado).
 
 ### Qué necesitas
 
@@ -52,7 +72,7 @@ Son tres piezas que trabajan juntas:
 
 | Pieza | Qué hace | Cómo se prepara |
 | --- | --- | --- |
-| **FilmCode en Docker** | La web, la API y las animaciones | Descargar la imagen y abrirla, siguiendo esta guía |
+| **FilmCode en Docker** | La web, la API y las animaciones | Construir la imagen y abrirla, siguiendo esta guía |
 | **Ollama + Gemma 4 12B** | Generar el guion | El asistente de Windows comprueba lo instalado y ofrece las descargas que falten |
 | **VoiceStudio + CosyVoice 3 + transcripción** | Narrar con tu voz y sincronizar las palabras | El asistente instala VoiceStudio; sus motores y tu perfil se preparan dentro de esa aplicación |
 
@@ -71,13 +91,13 @@ Abre la carpeta extraída. Debes ver estos archivos:
 FilmCode/
 ├── Instalar-FilmCode.cmd
 ├── configuracion.example
-├── compose.publicado.yaml
+├── compose.yaml
 ├── README.md
 └── frontend/
 ```
 
 **Trabaja dentro de esa carpeta, con los archivos ya extraídos.**
-La instalación usa la carpeta que contiene `compose.publicado.yaml`.
+La instalación usa la carpeta que contiene `compose.yaml`.
 
 ### 2. Prepara Docker Desktop
 
@@ -195,18 +215,19 @@ Guarda el archivo. Solo si tu VoiceStudio exige una clave, añade tu clave local
 en `OMNIVOICE_API_KEY`; en los demás casos, deja ese campo vacío.
 `configuracion.local` es privado y no se sube al repositorio.
 
-### 6. Descarga FilmCode y ábrelo
+### 6. Construye FilmCode y ábrelo
 
-En la misma ventana de PowerShell, descarga la imagen preparada:
+En la misma ventana de PowerShell, construye la imagen desde el código:
 
 ```powershell
-docker compose --env-file configuracion.local --file compose.publicado.yaml pull
+docker compose --env-file configuracion.local build
 ```
 
-La primera descarga puede tardar. Cuando termine, abre FilmCode:
+La primera construcción necesita internet para descargar las dependencias de
+software y puede tardar. Cuando termine, abre FilmCode:
 
 ```powershell
-docker compose --env-file configuracion.local --file compose.publicado.yaml up -d --no-build --pull never
+docker compose --env-file configuracion.local up -d --no-build --pull never
 ```
 
 Entra en **[http://127.0.0.1:8765](http://127.0.0.1:8765)**.
@@ -228,11 +249,16 @@ la ayuda para la voz predeterminada. Ese aviso no impide consultar la interfaz.
 ## Crea tu primer video
 
 1. Pulsa **Crear video** e importa tu código o guía.
-2. Define la explicación y la duración.
+2. Define la explicación y elige el formato horizontal o vertical. Escribe `1`
+   en **Duración fija** para exportar a **01:00**, o deja el campo vacío para
+   duración libre. FilmCode abrevia el guion si hace falta y comprueba la duración
+   del archivo; si el contenido no cabe sin forzar el ritmo, te pide revisarlo.
 3. En voz, **selecciona por nombre el perfil que creaste en VoiceStudio**.
    Si dejaste el ID vacío en la configuración, elige ese perfil concreto en lugar
    de la opción genérica **Tu voz**.
 4. Para empezar, elige un proyecto breve y **480p o 720p a 30 FPS**.
+   La voz empieza a **1,15×** si no tienes una velocidad guardada. En vertical
+   se conserva todo el encuadre dentro de un lienzo de **9:16**.
 5. Pulsa **Hacer video** cuando quieras iniciar la generación.
 
 Ese botón inicia el trabajo de guion y render. Puedes seguir el avance de la
@@ -256,19 +282,19 @@ Ejecuta los comandos desde la misma carpeta del proyecto.
 **Inicio:**
 
 ```powershell
-docker compose --env-file configuracion.local --file compose.publicado.yaml up -d --no-build --pull never
+docker compose --env-file configuracion.local up -d --no-build --pull never
 ```
 
 **Estado:**
 
 ```powershell
-docker compose --env-file configuracion.local --file compose.publicado.yaml ps
+docker compose --env-file configuracion.local ps
 ```
 
 **Cierre, conservando proyectos:**
 
 ```powershell
-docker compose --env-file configuracion.local --file compose.publicado.yaml down
+docker compose --env-file configuracion.local down
 ```
 
 Los proyectos se guardan en volúmenes de Docker y sobreviven al cierre y a la
@@ -276,12 +302,16 @@ recreación del contenedor. **`down -v` elimina esos volúmenes y sus datos**;
 no lo uses para un cierre normal. Detener FilmCode interrumpe los trabajos activos.
 
 <details>
-<summary><strong>Actualizar a otra versión</strong></summary>
+<summary><strong>Usar la imagen anterior de Docker Hub</strong></summary>
 
-Cambia `FILMCODE_IMAGEN` en `configuracion.local` por la etiqueta concreta que
-quieras usar de [Docker Hub](https://hub.docker.com/r/angelitow/filmcode).
-Después, sin trabajos activos, repite los comandos de descarga e inicio del paso 6.
-El archivo de ejemplo usa `angelitow/filmcode:0.2.0`.
+`configuracion.example` conserva `FILMCODE_IMAGEN=angelitow/filmcode:0.2.0`
+para quienes necesiten esa versión. Para abrirla, espera a que no haya trabajos
+activos, verifica la etiqueta en `configuracion.local` y ejecuta:
+
+```powershell
+docker compose --env-file configuracion.local --file compose.publicado.yaml pull
+docker compose --env-file configuracion.local --file compose.publicado.yaml up -d --no-build --pull never
+```
 
 La configuración tiene una versión concreta para que puedas elegir cuándo cambiar.
 El comando de inicio no descarga una actualización por su cuenta.
@@ -308,7 +338,7 @@ El comando de inicio no descarga una actualización por su cuenta.
 Si necesitas revisar un error, puedes consultar los registros de FilmCode:
 
 ```powershell
-docker compose --env-file configuracion.local --file compose.publicado.yaml logs --tail 80 filmcode
+docker compose --env-file configuracion.local logs --tail 80 filmcode
 ```
 
 Revisa y oculta cualquier dato personal antes de compartir registros.
@@ -398,7 +428,7 @@ Crea tu configuración desde la raíz del proyecto:
 cp configuracion.example configuracion.local
 ```
 
-Ajusta ese archivo, prepara tu voz y ejecuta los mismos comandos `pull` y `up`
+Ajusta ese archivo, prepara tu voz y ejecuta los mismos comandos `build` y `up`
 del paso 6. La imagen publicada es Linux amd64; no se ha verificado una imagen
 ARM64 ni una instalación en macOS.
 
@@ -439,22 +469,10 @@ de síntesis; el motor CosyVoice 3 se prepara en VoiceStudio.
 </details>
 
 <details>
-<summary><strong>Construir la imagen desde el código, opcional</strong></summary>
+<summary><strong>Construir la imagen con menos RAM, opcional</strong></summary>
 
-Para empezar con FilmCode usa la imagen de Docker Hub del paso 6.
-La construcción desde el código es una alternativa para desarrollar o adaptar
-la aplicación y descarga dependencias de software.
-
-Desde esta copia pública, con tu configuración creada:
-
-```sh
-docker compose --env-file configuracion.local build
-docker compose --env-file configuracion.local up -d --no-build --pull never
-```
-
-Este flujo usa `compose.yaml`, que construye `filmcode:local`.
-El flujo de Docker Hub usa `compose.publicado.yaml`.
-**Elige uno de los dos; no ejecutes ambos a la vez.**
+El paso 6 usa `compose.yaml` y construye `filmcode:local`. Si tienes poca memoria
+disponible, puedes reemplazar el comando `build` del paso 6 por este builder.
 
 Los límites de CPU y RAM del servicio no limitan la construcción. Para un builder
 dedicado con **1536 MiB, 2 CPU y sin swap adicional**, puedes usar:
@@ -464,6 +482,8 @@ docker buildx create --name filmcode-compilacion --driver docker-container --dri
 docker buildx build --builder filmcode-compilacion --load --tag filmcode:local .
 docker buildx stop filmcode-compilacion
 ```
+
+Después de construir, usa el comando `up` del paso 6.
 
 Ejecuta el último comando también si la construcción falla. Una construcción
 puede necesitar más memoria que ese límite. Buildx puede descargar su imagen

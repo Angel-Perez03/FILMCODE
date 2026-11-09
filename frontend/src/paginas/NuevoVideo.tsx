@@ -5,8 +5,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import ReactMarkdown from 'react-markdown';
 import { Check, ChevronRight } from 'lucide-react';
 import { baseProyecto, enviar, peticion, refrescarSalud, useDatos } from '../api';
-import type { Ajustes, Revision, Salud, Voces } from '../tipos';
-import { AYUDA_PRIORIDAD, configRenderInicial, describirCalidad, describirVoz, nombreValido, numero, opcionesDeVoz, opcionesVoz, separarVoz, vozInicial } from '../logica';
+import type { Ajustes, Orientacion, Revision, Salud, Voces } from '../tipos';
+import { AYUDA_PRIORIDAD, VELOCIDAD_VOZ_PREDETERMINADA, configRenderInicial, describirCalidad, describirVoz, duracion, nombreValido, numero, opcionesDeVoz, opcionesVoz, separarVoz, vozInicial } from '../logica';
 import { archivosArrastrados, filtrarSubidas } from '../fuentes';
 import type { Subida } from '../fuentes';
 import { avisar, Mensaje, navegarPestanas } from '../componentes/Comun';
@@ -23,11 +23,12 @@ export function NuevoVideo() {
   const [subidas, setSubidas] = useState<Subida[]>(state?.subidas ?? []), [ruta, setRuta] = useState(parametros.get('ruta') ?? ''), [markdown, setMarkdown] = useState('');
   const [revision, setRevision] = useState<Revision | null>(null);
   const [nombre, setNombre] = useState(''), [titulo, setTitulo] = useState(''), [calidad, setCalidad] = useState<string>(() => configRenderInicial());
+  const [orientacion, setOrientacion] = useState<Orientacion>('horizontal');
   const [modelo, setModelo] = useState(''), [voz, setVoz] = useState('');
   const [capturar, setCapturar] = useState(true), [prioridad, setPrioridad] = useState(true);
   const [duracionObjetivo, setDuracionObjetivo] = useState('');
   const [entradaDuracionInvalida, setEntradaDuracionInvalida] = useState(false);
-  const [velocidadVoz, setVelocidadVoz] = useState('1'), [velocidadAnimaciones, setVelocidadAnimaciones] = useState('1');
+  const [velocidadVoz, setVelocidadVoz] = useState(String(VELOCIDAD_VOZ_PREDETERMINADA)), [velocidadAnimaciones, setVelocidadAnimaciones] = useState('1');
   const [entradaVelocidadVozInvalida, setEntradaVelocidadVozInvalida] = useState(false), [entradaVelocidadAnimacionesInvalida, setEntradaVelocidadAnimacionesInvalida] = useState(false);
   const [vozFluida, setVozFluida] = useState(true);
   const [ocupado, setOcupado] = useState(false), [revisando, setRevisando] = useState(false), [soltando, setSoltando] = useState(false), [creado, setCreado] = useState('');
@@ -84,7 +85,7 @@ export function NuevoVideo() {
         else resultado = await enviar('/proyectos', { ...(modo === 'ruta' ? { ruta: ruta.trim() } : { markdown, archivo: 'guia.md' }), nombre, titulo });
         proyecto = resultado.nombre; setCreado(proyecto);
       }
-      await enviar(`${baseProyecto(proyecto)}/trabajos`, { tipo: 'continuar', calidad, modelo, capturar, prioridad_baja: prioridad, duracion_objetivo_minutos: minutosObjetivo, velocidad_voz: factorVoz, velocidad_animaciones: factorAnimaciones, voz_fluida: vozFluida, ...opcionesDeVoz(voz) });
+      await enviar(`${baseProyecto(proyecto)}/trabajos`, { tipo: 'continuar', calidad, orientacion, modelo, capturar, prioridad_baja: prioridad, duracion_objetivo_minutos: minutosObjetivo, velocidad_voz: factorVoz, velocidad_animaciones: factorAnimaciones, voz_fluida: vozFluida, ...opcionesDeVoz(voz) });
       await cliente.invalidateQueries(); navegar(`/proyectos/${proyecto}`);
     } catch (e) { avisar((e as Error).message, true); } finally { setOcupado(false); }
   }
@@ -150,11 +151,11 @@ export function NuevoVideo() {
               {nombre && !nombreBien ? <span className="vc-campo__error">Usa minúsculas, números y guiones. Por ejemplo: {nombreValido(nombre)}</span> : <span className="vc-campo__ayuda">Minúsculas, números y guiones; 60 caracteres como máximo.</span>}
             </label>
           </div>
-          <OpcionesRender calidad={calidad} cambiar={setCalidad} deshabilitado={ocupado}/>
+          <OpcionesRender calidad={calidad} cambiar={setCalidad} orientacion={orientacion} cambiarOrientacion={setOrientacion} deshabilitado={ocupado}/>
           <div className={`vc-campo${duracionValida ? '' : ' vc-campo--error'}`}>
-            <label className="vc-campo__etiqueta" htmlFor="duracion-objetivo">Duración del video final en minutos (opcional)</label>
+            <label className="vc-campo__etiqueta" htmlFor="duracion-objetivo">Duración fija del video (minutos, opcional)</label>
             <input id="duracion-objetivo" className="vc-campo__entrada" type="number" min={1} max={120} step="any" placeholder="Libre" value={duracionObjetivo} disabled={ocupado} onChange={e => { setDuracionObjetivo(e.target.value); setEntradaDuracionInvalida(e.target.validity.badInput); }} aria-invalid={!duracionValida} aria-describedby="duracion-objetivo-ayuda"/>
-            <span id="duracion-objetivo-ayuda" className={duracionValida ? 'vc-campo__ayuda' : 'vc-campo__error'}>{duracionValida ? 'El guion se prepara para acercarse a esa duración. Déjalo vacío para una duración libre; no es el tiempo que tarda el render.' : 'Escribe una duración de 1 a 120 minutos o deja el campo vacío.'}</span>
+            <span id="duracion-objetivo-ayuda" className={duracionValida ? 'vc-campo__ayuda' : 'vc-campo__error'}>{duracionValida ? 'FilmCode abrevia el guion y comprueba la duración al exportar. Si no cabe sin cortar frases o forzar el ritmo, te pedirá revisar el guion. Déjalo vacío para duración libre.' : 'Escribe una duración de 1 a 120 minutos o deja el campo vacío.'}</span>
           </div>
           <div className="vc-campo">
             <span className="vc-campo__etiqueta">Voz</span>
@@ -169,7 +170,7 @@ export function NuevoVideo() {
                 <output htmlFor="velocidad-voz">{velocidadVozValida ? `${numero(factorVoz, 2)}×` : '—'}</output>
                 <button type="button" className="vc-boton" aria-label="Restablecer la velocidad de la voz a 1×" disabled={ocupado} onClick={() => { setVelocidadVoz('1'); setEntradaVelocidadVozInvalida(false); }}>Restablecer 1×</button>
               </div>
-              <span id="velocidad-voz-ayuda" className={velocidadVozValida ? 'vc-campo__ayuda' : 'vc-campo__error'}>{velocidadVozValida ? 'Cambia el ritmo de la voz conservando su tono.' : 'Usa un valor entre 0,75 y 1,5 en pasos de 0,05.'}</span>
+              <span id="velocidad-voz-ayuda" className={velocidadVozValida ? 'vc-campo__ayuda' : 'vc-campo__error'}>{velocidadVozValida ? 'Por defecto 1,15×. Elige 1× para conservar el ritmo original de la voz.' : 'Usa un valor entre 0,75 y 1,5 en pasos de 0,05.'}</span>
             </div>
             <div className={`vc-campo${velocidadAnimacionesValida ? '' : ' vc-campo--error'}`}>
               <label className="vc-campo__etiqueta" htmlFor="velocidad-animaciones">Velocidad de las animaciones</label>
@@ -215,7 +216,8 @@ export function NuevoVideo() {
           <div><dt>Ritmo de voz</dt><dd>{velocidadVozValida ? `${numero(factorVoz, 2)}×` : 'Revisa la velocidad'}</dd></div>
           <div><dt>Animaciones</dt><dd>{velocidadAnimacionesValida ? `${numero(factorAnimaciones, 2)}×` : 'Revisa la velocidad'}</dd></div>
           <div><dt>Narración continua</dt><dd>{vozFluida ? 'Activada' : 'Desactivada'}</dd></div>
-          <div><dt>Duración objetivo</dt><dd>{duracionValida ? minutosObjetivo == null ? 'Libre' : `${numero(minutosObjetivo, 2)} min` : 'Revisa los minutos'}</dd></div>
+          <div><dt>Orientación</dt><dd>{orientacion === 'vertical' ? 'Vertical · 9:16' : 'Horizontal · 16:9'}</dd></div>
+          <div><dt>Duración de exportación</dt><dd>{duracionValida ? minutosObjetivo == null ? 'Libre' : duracion(minutosObjetivo * 60) : 'Revisa los minutos'}</dd></div>
         </dl>
         <button className="vc-boton vc-boton--principal vc-boton--grande w-full" type="submit" disabled={!fuenteLista || !nombreBien || !duracionValida || !velocidadesValidas || Boolean(impedimento) || ocupado}>{ocupado ? 'Preparando…' : creado ? 'Reintentar el inicio' : 'Hacer video'}</button>
         <p className="vc-nota">El guion tarda de 10 a 30 minutos. Podrás seguir el progreso y cancelar.</p>

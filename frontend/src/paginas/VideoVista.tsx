@@ -66,7 +66,7 @@ export function VideoVista({ proyecto }: {proyecto: Proyecto}) {
     {video?.desactualizado && <Mensaje tono="aviso">El guion cambió después de este render: el video y sus capítulos pueden no coincidir con la versión actual.</Mensaje>}
     <div className="vc-video">
       <div className="vc-reproductor">
-        <video key={`${proyecto.nombre}-${calidad}-${video?.fecha}`} ref={reproductor} className="vc-marco" preload="metadata" src={`/api${base}/video/${calidad}`} poster={proyecto.miniatura}
+        <video key={`${proyecto.nombre}-${calidad}-${video?.fecha}`} ref={reproductor} className={`vc-marco${video?.orientacion === 'vertical' ? ' vc-marco--vertical' : ''}`} preload="metadata" src={`/api${base}/video/${calidad}`} poster={video?.calidad === versiones[0]?.calidad ? proyecto.miniatura : undefined}
           onClick={alternar} onTimeUpdate={e => setTiempo(e.currentTarget.currentTime)} onLoadedMetadata={e => setTotal(e.currentTarget.duration)}
           onPlay={() => { setReproduciendo(true); setSeguir(true); }} onPause={() => setReproduciendo(false)}
           onError={() => setError(new Error('No se pudo reproducir el video. Comprueba que el archivo siga en salida/.'))}>
@@ -85,6 +85,8 @@ export function VideoVista({ proyecto }: {proyecto: Proyecto}) {
         </div>
         {video && <dl className="vc-video__datos">
           <div><dt>Duración</dt><dd>{duracion(video.duracion)}</dd></div>
+          {video.ancho && video.alto ? <div><dt>Formato</dt><dd>{video.orientacion === 'vertical' ? 'Vertical' : 'Horizontal'} · {video.ancho} × {video.alto}</dd></div> : null}
+          {video.velocidad_voz != null ? <div><dt>Ritmo de voz</dt><dd>{numero(video.velocidad_voz, 2)}×{video.duracion_fija_segundos ? ' antes del ajuste final' : ''}</dd></div> : null}
           <div><dt>Archivo</dt><dd>{numero(video.megas)} MB</dd></div>
           <div><dt>Render</dt><dd>{video.segundos_render ? tiempoLegible(video.segundos_render) : '—'}</dd></div>
           <div><dt>Creado</dt><dd>{fechaCorta(video.fecha)}</dd></div>

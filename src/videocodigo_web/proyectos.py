@@ -17,6 +17,7 @@ from videocodigo.duracion import estimar_segundos
 from .archivos import (archivo_seguro, carpeta_proyecto, carpeta_web, es_enlace,
                        invalidar_estado, leer_estado, leer_json, relativa_segura)
 from .fuentes import MAX_TOTAL, admitido, copiar_local, inspeccionar
+from .formato_video import calidad_base, calidades_salida, dimensiones_salida, orientacion_salida
 
 router = APIRouter()
 
@@ -27,7 +28,7 @@ def videos_disponibles(carpeta: Path, estado: dict) -> list[dict]:
     salidas = estado.get("salidas", {})
     salidas = salidas if isinstance(salidas, dict) else {}
     videos = []
-    for calidad in proyecto.CALIDADES:
+    for calidad in calidades_salida():
         archivo = archivo_seguro(carpeta, f"salida/{calidad}.mp4")
         if not archivo.is_file():
             continue
@@ -38,9 +39,14 @@ def videos_disponibles(carpeta: Path, estado: dict) -> list[dict]:
             renderizado = datetime.fromisoformat(fecha).timestamp() if fecha else archivo.stat().st_mtime
         except (TypeError, ValueError):
             renderizado = archivo.stat().st_mtime
+        perfil = proyecto.CALIDADES[calidad_base(calidad)]
+        ancho, alto = dimensiones_salida(calidad)
         videos.append({"calidad": calidad, "duracion": datos.get("duracion"),
-                       "resolucion": datos.get("resolucion", proyecto.CALIDADES[calidad]["resolucion"]),
-                       "fps": datos.get("fps", proyecto.CALIDADES[calidad]["fps"]),
+                       "resolucion": datos.get("resolucion", perfil["resolucion"]),
+                       "fps": datos.get("fps", perfil["fps"]),
+                       "orientacion": orientacion_salida(calidad), "ancho": ancho, "alto": alto,
+                       "duracion_fija_segundos": datos.get("duracion_fija_segundos"),
+                       "velocidad_voz": datos.get("velocidad_voz"),
                        "megas": datos.get("megas", round(archivo.stat().st_size / 1_000_000, 2)),
                        "fecha": fecha or datetime.fromtimestamp(renderizado).isoformat(timespec="seconds"),
                        "animaciones": datos.get("animaciones"), "segundos_render": datos.get("segundos_render"),

@@ -135,6 +135,9 @@ def comprobar_para_trabajo(nombre, opciones):
             raise HTTPException(409, estado["ollama"]["mensaje"])
     if tipo in {"render", "continuar", "fotogramas"} and not shutil.which("ffmpeg"):
         raise HTTPException(409, "No se encuentra ffmpeg en este equipo.")
+    if tipo in {"render", "continuar"} and (opciones.get("orientacion") == "vertical"
+            or opciones.get("duracion_objetivo_minutos") is not None) and not shutil.which("ffprobe"):
+        raise HTTPException(409, "Hace falta ffprobe para comprobar la duración y el formato del video.")
     if tipo in {"render", "continuar"} and (opciones.get("voz") or proyecto.CALIDADES.get(calidad, {}).get("voz")) == "voicestudio":
         url_local(config.ajustes_voz().voicestudio_url)
         estado = estado_servicios(opciones.get("modelo"))

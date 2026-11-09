@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import { configRenderInicial } from '../logica';
 import { Selector } from './Controles';
+import type { Orientacion } from '../tipos';
 
 const PRESETS = [
   { calidad: '720p30', nombre: 'Equilibrado', detalle: '720p · 30 FPS' },
@@ -9,7 +10,10 @@ const PRESETS = [
   { calidad: '1080p30', nombre: 'Detalle', detalle: '1080p · 30 FPS' },
 ] as const;
 
-export function OpcionesRender({ calidad, cambiar, deshabilitado = false }: {calidad: string; cambiar: (valor: string) => void; deshabilitado?: boolean}) {
+export function OpcionesRender({ calidad, cambiar, orientacion, cambiarOrientacion, deshabilitado = false }: {
+  calidad: string; cambiar: (valor: string) => void; orientacion: Orientacion;
+  cambiarOrientacion: (valor: Orientacion) => void; deshabilitado?: boolean;
+}) {
   const grupo = useId();
   const actual = configRenderInicial(calidad);
   const separador = actual.indexOf('p');
@@ -17,6 +21,12 @@ export function OpcionesRender({ calidad, cambiar, deshabilitado = false }: {cal
 
   return <fieldset className="vc-opciones-render" disabled={deshabilitado}>
     <legend className="vc-campo__etiqueta">Formato del video</legend>
+    <div className="vc-campo">
+      <span className="vc-campo__etiqueta">Orientación</span>
+      <div><Selector etiqueta="Orientación del video" valor={orientacion} cambiar={valor => cambiarOrientacion(valor === 'vertical' ? 'vertical' : 'horizontal')}
+        deshabilitado={deshabilitado} opciones={[{ valor: 'horizontal', texto: 'Horizontal · 16:9' }, { valor: 'vertical', texto: 'Vertical · 9:16' }]}/></div>
+      {orientacion === 'vertical' ? <span className="vc-campo__ayuda">El encuadre se centra en el lienzo vertical para conservar todo el código y el texto.</span> : null}
+    </div>
     <div className="vc-opciones-render__presets">
       {PRESETS.map(preset => <label key={preset.calidad} className="vc-opciones-render__preset" data-activo={actual === preset.calidad ? '' : undefined}>
         <input type="radio" name={grupo} value={preset.calidad} checked={actual === preset.calidad} onChange={() => cambiar(preset.calidad)}/>

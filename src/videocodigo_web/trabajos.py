@@ -9,7 +9,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from videocodigo import proyecto
+from .formato_video import calidades_salida
 
 router = APIRouter(prefix="/api")
 
@@ -28,12 +28,13 @@ class OpcionesTrabajo(BaseModel):
     velocidad_voz: float | None = Field(default=None, ge=0.75, le=1.5, allow_inf_nan=False)
     velocidad_animaciones: float | None = Field(default=None, ge=0.5, le=2, allow_inf_nan=False)
     voz_fluida: bool | None = None
+    orientacion: Literal["horizontal", "vertical"] | None = None
 
     @field_validator("calidad")
     @classmethod
     def calidad_conocida(cls, valor):
-        if valor is not None and valor not in proyecto.CALIDADES:
-            raise ValueError(f"Calidad desconocida. Usa: {', '.join(proyecto.CALIDADES)}")
+        if valor is not None and valor not in calidades_salida():
+            raise ValueError("Calidad desconocida.")
         return valor
 
 
