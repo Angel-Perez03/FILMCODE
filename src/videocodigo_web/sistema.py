@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 from videocodigo import config, estilo, guion, ingesta, proyecto, voz
 
 from .archivos import archivo_seguro, carpeta_proyecto, carpeta_web, leer_json
+from .estilo_referencia import FONDO_PREDETERMINADO
 from .seguridad import url_local
 
 router = APIRouter()
@@ -113,11 +114,13 @@ def voces():
 
 
 def comprobar_para_trabajo(nombre, opciones):
+    from .archivos import referencia_visual
     from .guiones import errores_guion
 
     tipo = opciones.get("tipo")
     calidad = opciones.get("calidad", proyecto.CALIDAD_PREDETERMINADA)
     carpeta = carpeta_proyecto(nombre)
+    referencia = referencia_visual(carpeta, leer_json(archivo_seguro(carpeta, "proyecto.json"), {})) if tipo != "fotogramas" else None
     archivo_guion = archivo_seguro(carpeta, "guion.json")
     existe = archivo_guion.is_file()
     if tipo in {"render", "continuar"} and existe:
@@ -133,10 +136,13 @@ def comprobar_para_trabajo(nombre, opciones):
         estado = estado_servicios(opciones.get("modelo"), forzar=True)
         if not estado["ollama"]["listo"]:
             raise HTTPException(409, estado["ollama"]["mensaje"])
-    if tipo in {"render", "continuar", "fotogramas"} and not shutil.which("ffmpeg"):
+    video_referencia = referencia is not None and referencia.suffix.lower() in {".mp4", ".webm", ".mov", ".mkv"}
+    if (tipo in {"render", "continuar", "fotogramas"} or video_referencia) and not shutil.which("ffmpeg"):
         raise HTTPException(409, "No se encuentra ffmpeg en este equipo.")
-    if tipo in {"render", "continuar"} and (opciones.get("orientacion") == "vertical"
-            or opciones.get("duracion_objetivo_minutos") is not None) and not shutil.which("ffprobe"):
+    exportacion_adaptada = tipo in {"render", "continuar"} and (
+        referencia is not None or opciones.get("orientacion") == "vertical" or opciones.get("duracion_objetivo_minutos") is not None
+        or opciones.get("fondo_video", FONDO_PREDETERMINADO) != FONDO_PREDETERMINADO)
+    if (video_referencia or exportacion_adaptada) and not shutil.which("ffprobe"):
         raise HTTPException(409, "Hace falta ffprobe para comprobar la duración y el formato del video.")
     if tipo in {"render", "continuar"} and (opciones.get("voz") or proyecto.CALIDADES.get(calidad, {}).get("voz")) == "voicestudio":
         url_local(config.ajustes_voz().voicestudio_url)

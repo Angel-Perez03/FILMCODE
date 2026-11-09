@@ -22,12 +22,13 @@ from videocodigo.velocidades import validar_velocidades
 from .archivos import archivo_seguro, carpeta_proyecto, escribir_json, invalidar_estado, leer_estado, leer_json
 from .bloqueo_exportacion import ExportacionEnCurso, bloquear_exportacion
 from .deteccion import detener_arbol, externos, proceso_vivo
+from .estilo_referencia import FONDO_PREDETERMINADO, normalizar_fondo
 from .formato_video import calidad_base, calidad_salida, calidades_salida
 from .prioridad import aplicar_prioridad, leer_prioridad, mantener_prioridad
 from .seguridad import sanitizar
 
 PREFERENCIAS = {"calidad", "modelo", "capturar", "voz", "voz_edge", "voz_voicestudio", "prioridad_baja",
-               "duracion_objetivo_minutos", "velocidad_voz", "velocidad_animaciones", "voz_fluida", "orientacion"}
+               "duracion_objetivo_minutos", "velocidad_voz", "velocidad_animaciones", "voz_fluida", "orientacion", "fondo_video"}
 VELOCIDAD_VOZ_PREDETERMINADA = 1.15
 
 
@@ -214,6 +215,7 @@ class GestorTrabajos:
                     raise HTTPException(409, str(error)) from error
             try:
                 duracion = validar_minutos(elegidas.get("duracion_objetivo_minutos"))
+                fondo = normalizar_fondo(elegidas.get("fondo_video"))
                 velocidad_voz, velocidad_animaciones = validar_velocidades(
                     elegidas.get("velocidad_voz", VELOCIDAD_VOZ_PREDETERMINADA), elegidas.get("velocidad_animaciones"))
             except ValueError as error:
@@ -236,10 +238,18 @@ class GestorTrabajos:
             voz = elegidas.get("voz")
             if voz is not None and voz not in config.PROVEEDORES_VOZ:
                 raise HTTPException(422, "La voz seleccionada no es válida.")
+            generar = tipo == "guion" or (tipo == "continuar" and not archivo_seguro(carpeta, "guion.json").is_file())
+            manifiesto = leer_json(archivo_seguro(carpeta, "proyecto.json"), {})
+            referencia = isinstance(manifiesto, dict) and manifiesto.get("referencia_visual") is not None
+            if "fondo_video" in elegidas:
+                elegidas["fondo_video"] = fondo
+            if referencia and tipo != "fotogramas":
+                elegidas["capturar"] = False
             if not self._comando_prueba:
                 comprobar_para_trabajo(nombre, elegidas)
-            adaptado = (tipo == "fotogramas" and calidad != base) or (
-                tipo != "fotogramas" and (duracion is not None or (tipo != "guion" and orientacion == "vertical")))
+            adaptado = generar or (tipo == "fotogramas" and calidad != base) or (
+                tipo != "fotogramas" and (duracion is not None or referencia or orientacion == "vertical"
+                                          or fondo != FONDO_PREDETERMINADO))
             modulo = "videocodigo_web.trabajo_video" if adaptado else "videocodigo"
             comando = [sys.executable, "-m", modulo, tipo, nombre]
             if tipo in {"render", "continuar", "fotogramas"}:
@@ -261,6 +271,8 @@ class GestorTrabajos:
                     comando.append("--sin-capturas")
             if adaptado and tipo != "fotogramas":
                 comando += ["--orientacion", orientacion]
+                if fondo != FONDO_PREDETERMINADO:
+                    comando += ["--fondo-video", fondo]
                 if tipo == "render" and duracion is not None:
                     comando += ["--duracion-minutos", str(duracion)]
                 if tipo == "guion":

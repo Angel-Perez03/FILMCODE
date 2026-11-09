@@ -8,6 +8,7 @@ import { AYUDA_PRIORIDAD, VELOCIDAD_VOZ_PREDETERMINADA, configRenderInicial, des
 import { avisar, Insignia, Mensaje, Progreso, Terminal } from '../componentes/Comun';
 import { Selector, useConfirmar } from '../componentes/Controles';
 import { OpcionesRender } from '../componentes/OpcionesRender';
+import { FONDO_PREDETERMINADO, nombreFondoVideo } from '../componentes/FondoVideo';
 import { RecursosTrabajo } from '../componentes/RecursosTrabajo';
 import { aplicarFlip } from '../movimiento/flip';
 
@@ -27,6 +28,8 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
   const [voz, setVoz] = useState('');
   const [calidad, setCalidad] = useState<string>(() => configRenderInicial(p.preferencias?.calidad));
   const [orientacion, setOrientacion] = useState<Orientacion>(() => p.preferencias?.orientacion ?? 'horizontal');
+  const [fondoVideo, setFondoVideo] = useState(() => p.preferencias?.fondo_video ?? FONDO_PREDETERMINADO);
+  const tieneReferencia = Boolean(p.manifiesto.referencia_visual);
   const [prioridadBaja, setPrioridadBaja] = useState(p.preferencias?.prioridad_baja ?? true);
   const [cambiandoPrioridad, setCambiandoPrioridad] = useState(false);
   const [duracionObjetivo, setDuracionObjetivo] = useState(() => p.preferencias?.duracion_objetivo_minutos?.toString() ?? '');
@@ -71,6 +74,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
   useEffect(() => { setPrioridadBaja(p.preferencias?.prioridad_baja ?? true); }, [p.nombre, p.preferencias?.prioridad_baja]);
   useEffect(() => { setCalidad(configRenderInicial(p.preferencias?.calidad)); }, [p.nombre, p.preferencias?.calidad]);
   useEffect(() => { setOrientacion(p.preferencias?.orientacion ?? 'horizontal'); }, [p.nombre, p.preferencias?.orientacion]);
+  useEffect(() => { setFondoVideo(p.preferencias?.fondo_video ?? FONDO_PREDETERMINADO); }, [p.nombre, p.preferencias?.fondo_video]);
   useEffect(() => { setDuracionObjetivo(p.preferencias?.duracion_objetivo_minutos?.toString() ?? ''); setEntradaDuracionInvalida(false); }, [p.nombre, p.preferencias?.duracion_objetivo_minutos]);
   useEffect(() => {
     setVelocidadVoz((p.preferencias?.velocidad_voz ?? VELOCIDAD_VOZ_PREDETERMINADA).toString());
@@ -112,7 +116,8 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
 
   async function lanzar(elegidas: OpcionesTrabajo) {
     if (inicioBloqueado) return;
-    const opciones: OpcionesTrabajo = { ...elegidas, ...(elegidas.voz ? {} : opcionesDeVoz(voz)), orientacion, prioridad_baja: prioridadBaja, velocidad_voz: factorVoz, velocidad_animaciones: factorAnimaciones, voz_fluida: vozFluida };
+    const fondo = elegidas.tipo === 'render' || elegidas.tipo === 'continuar' ? { fondo_video: fondoVideo } : {};
+    const opciones: OpcionesTrabajo = { ...elegidas, ...(elegidas.voz ? {} : opcionesDeVoz(voz)), ...fondo, orientacion, prioridad_baja: prioridadBaja, velocidad_voz: factorVoz, velocidad_animaciones: factorAnimaciones, voz_fluida: vozFluida };
     setProcesando(true);
     try { await enviar(`${baseProyecto(p.nombre)}/trabajos`, opciones); await cliente.invalidateQueries(); avisar('Trabajo iniciado. Puedes seguirlo aquí o en la barra de arriba.'); }
     catch (e) { avisar((e as Error).message, true); } finally { setProcesando(false); }
@@ -234,7 +239,9 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
       {video && <Link className="vc-boton vc-boton--texto justify-self-start" to={`/proyectos/${encodeURIComponent(p.nombre)}?vista=video`}>Ver el video disponible{p.videos.every(v => v.desactualizado) ? ' (guion anterior)' : ''}</Link>}
       <section className="grid gap-4" aria-labelledby="opciones-render-proyecto-titulo">
         <h3 id="opciones-render-proyecto-titulo" className="m-0 text-base font-semibold">Opciones del video</h3>
-        <OpcionesRender calidad={calidad} cambiar={setCalidad} orientacion={orientacion} cambiarOrientacion={setOrientacion} deshabilitado={ocupado || procesando || guardandoDuracion || guardandoVelocidades || cambiandoPrioridad}/>
+        <OpcionesRender key={p.nombre} calidad={calidad} cambiar={setCalidad} orientacion={orientacion} cambiarOrientacion={setOrientacion}
+          fondo={fondoVideo} cambiarFondo={setFondoVideo} tieneReferencia={tieneReferencia}
+          deshabilitado={ocupado || procesando || guardandoDuracion || guardandoVelocidades || cambiandoPrioridad}/>
         <div className="vc-campo"><span className="vc-campo__etiqueta">Voz</span><div><Selector etiqueta="Voz" valor={voz} cambiar={setVoz} deshabilitado={ocupado || procesando} opciones={opcionesVoces}/></div><span className="vc-campo__ayuda">La voz se elige por separado de la resolución y los cuadros por segundo.</span></div>
       </section>
       <div className={`vc-campo${duracionValida ? '' : ' vc-campo--error'}`}>
@@ -284,7 +291,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
         <h3 id="resumen-render-proyecto-titulo" className="m-0 text-base font-semibold">{p.tiene_guion ? 'Video que vas a renderizar' : 'Opciones seleccionadas'}</h3>
         <p className="m-0"><strong>{describirCalidad(calidad).nombre}</strong> · {nombreVoz}</p>
         <p className="vc-nota">{velocidadesValidas ? `Voz ${numero(factorVoz, 2)}× · Animaciones ${numero(factorAnimaciones, 2)}× · Narración continua ${vozFluida ? 'activada' : 'desactivada'}` : 'Revisa las velocidades antes de iniciar.'}</p>
-        <p className="vc-nota">{orientacion === 'vertical' ? 'Vertical · 9:16' : 'Horizontal · 16:9'} · Duración: {duracionGuardada == null ? 'libre' : duracion(duracionGuardada * 60)} · Prioridad {prioridadBaja ? 'baja' : 'alta'}</p>
+        <p className="vc-nota">{orientacion === 'vertical' ? 'Vertical · 9:16' : 'Horizontal · 16:9'} · Fondo: {nombreFondoVideo(fondoVideo, tieneReferencia)} · Duración: {duracionGuardada == null ? 'libre' : duracion(duracionGuardada * 60)} · Prioridad {prioridadBaja ? 'baja' : 'alta'}</p>
         <div className="vc-fila-botones"><button className="vc-boton vc-boton--principal vc-boton--grande" disabled={procesando || cambiandoPrioridad || Boolean(bloqueado) || (!['ver', 'corregir'].includes(accion) && inicioBloqueado)} onClick={() => void actuar()}>{procesando ? 'Un momento…' : ETIQUETAS[accion]}</button></div>
       </section>}
       {lineas.length > 0 && <details className="vc-plegable">
@@ -303,6 +310,7 @@ export function Resumen({ proyecto: p, ir }: {proyecto: Detalle; ir: (vista: str
       </figure> : <div className="vc-marco vc-marco--vacio">Sin video todavía</div>}
       <dl className="vc-datos">
         <dt>Fuente</dt><dd>{p.manifiesto.fuente.copia}</dd>
+        {p.manifiesto.referencia_visual ? <><dt>Referencia visual</dt><dd className="break-all">{p.manifiesto.referencia_visual.nombre}</dd></> : null}
         {p.estado.guion?.escenas ? <><dt>Guion</dt><dd>{p.estado.guion.escenas} escenas · {numero(p.estado.guion.caracteres ?? 0, 0)} caracteres</dd></> : null}
         <dt>Duración para la próxima exportación</dt><dd>{duracionGuardada == null ? 'Libre' : duracion(duracionGuardada * 60)}</dd>
         {duracionEstimada != null && duracionEstimada > 0 ? <><dt>Estimación del guion actual</dt><dd>Unos {duracion(duracionEstimada)}</dd></> : null}

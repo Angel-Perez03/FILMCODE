@@ -179,6 +179,9 @@ textarea.vc-campo__entrada { height: auto; min-height: 120px; padding: var(--esp
 .vc-duracion-objetivo .vc-campo__entrada { width: 12rem; max-width: 100%; }
 .vc-opciones-render { display: grid; gap: var(--espacio-16); min-width: 0; margin: 0; padding: 0; border: 0; }
 .vc-opciones-render > legend { margin-bottom: var(--espacio-8); padding: 0; }
+.vc-campo__entrada.vc-fondo-video__color { width: 3.5rem; padding: var(--espacio-4); }
+.vc-fondo-video__detalle { display: inline-flex; align-items: center; gap: var(--espacio-8); }
+.vc-fondo-video__muestra { width: 1em; height: 1em; border: 1px solid var(--borde); border-radius: 3px; }
 .vc-opciones-render__presets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--espacio-8); }
 .vc-opciones-render__preset { display: grid; grid-template-columns: 16px minmax(0, 1fr); align-items: start; gap: var(--espacio-8); padding: var(--espacio-12); background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-boton); cursor: pointer; }
 .vc-opciones-render__preset[data-activo] { border-color: var(--azul); background: var(--barra); }

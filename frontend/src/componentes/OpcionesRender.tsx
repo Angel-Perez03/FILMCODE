@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import { configRenderInicial } from '../logica';
 import { Selector } from './Controles';
+import { FondoVideo } from './FondoVideo';
 import type { Orientacion } from '../tipos';
 
 const PRESETS = [
@@ -10,9 +11,10 @@ const PRESETS = [
   { calidad: '1080p30', nombre: 'Detalle', detalle: '1080p · 30 FPS' },
 ] as const;
 
-export function OpcionesRender({ calidad, cambiar, orientacion, cambiarOrientacion, deshabilitado = false }: {
+export function OpcionesRender({ calidad, cambiar, orientacion, cambiarOrientacion, fondo, cambiarFondo, tieneReferencia = false, deshabilitado = false }: {
   calidad: string; cambiar: (valor: string) => void; orientacion: Orientacion;
-  cambiarOrientacion: (valor: Orientacion) => void; deshabilitado?: boolean;
+  cambiarOrientacion: (valor: Orientacion) => void; fondo: string; cambiarFondo: (valor: string) => void;
+  tieneReferencia?: boolean; deshabilitado?: boolean;
 }) {
   const grupo = useId();
   const actual = configRenderInicial(calidad);
@@ -43,6 +45,7 @@ export function OpcionesRender({ calidad, cambiar, orientacion, cambiarOrientaci
         <Selector etiqueta="Cuadros por segundo del video" valor={fps} cambiar={valor => cambiar(`${resolucion}p${valor}`)} deshabilitado={deshabilitado} opciones={[{ valor: '30', texto: '30 FPS' }, { valor: '60', texto: '60 FPS' }]}/>
       </div>
     </div>
+    <FondoVideo valor={fondo} cambiar={cambiarFondo} tieneReferencia={tieneReferencia} deshabilitado={deshabilitado}/>
     <p className="vc-campo__ayuda">Los presets eligen resolución y FPS. La voz y su ritmo se ajustan por separado.</p>
   </fieldset>;
 }

@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from .formato_video import calidades_salida
+from .estilo_referencia import normalizar_fondo
 
 router = APIRouter(prefix="/api")
 
@@ -29,6 +30,12 @@ class OpcionesTrabajo(BaseModel):
     velocidad_animaciones: float | None = Field(default=None, ge=0.5, le=2, allow_inf_nan=False)
     voz_fluida: bool | None = None
     orientacion: Literal["horizontal", "vertical"] | None = None
+    fondo_video: str | None = Field(default=None, max_length=14)
+
+    @field_validator("fondo_video")
+    @classmethod
+    def fondo_conocido(cls, valor):
+        return normalizar_fondo(valor) if valor is not None else None
 
     @field_validator("calidad")
     @classmethod

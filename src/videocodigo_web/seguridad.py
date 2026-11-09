@@ -5,13 +5,17 @@ from __future__ import annotations
 import json
 import os
 import re
+import tempfile
 from urllib.parse import urlsplit
 
 from fastapi import HTTPException
+from starlette.concurrency import run_in_threadpool
 from starlette.responses import JSONResponse
 
 CLAVES = ("OPENAI_API_KEY", "OMNIVOICE_API_KEY")
 MAX_CUERPO = 21_000_000
+MAX_VIDEO_REFERENCIA = 200 * 1024 * 1024
+MAX_CUERPO_REFERENCIA = MAX_CUERPO + MAX_VIDEO_REFERENCIA
 
 
 def sanitizar(valor):
@@ -71,6 +75,43 @@ class FronteraLocal:
         if mutacion and (cabeceras.get("x-videocodigo") != "1"
                          or cabeceras.get("origin") not in self.origenes):
             return await rechazar(403, "La petición debe originarse en FilmCode y llevar su cabecera de seguridad.")
+        subida_referencia = (scope["method"] == "POST" and scope["path"] == "/api/proyectos/con-referencia"
+                             and cabeceras.get("content-type", "").startswith("multipart/form-data"))
+        if subida_referencia:
+            # El límite grande solo se aplica a esta ruta y se guarda en disco,
+            # sin retener el video completo en la memoria de la API.
+            longitud = cabeceras.get("content-length", "")
+            if longitud.isdecimal() and (len(longitud) > 10 or int(longitud) > MAX_CUERPO_REFERENCIA):
+                return await rechazar(413, "El video de referencia puede pesar hasta 200 MiB.")
+            try:
+                with tempfile.TemporaryFile() as archivo:
+                    total = 0
+                    while True:
+                        mensaje = await receive()
+                        if mensaje["type"] == "http.disconnect":
+                            return
+                        datos = mensaje.get("body", b"")
+                        total += len(datos)
+                        if total > MAX_CUERPO_REFERENCIA:
+                            return await rechazar(413, "El video de referencia puede pesar hasta 200 MiB.")
+                        await run_in_threadpool(archivo.write, datos)
+                        if not mensaje.get("more_body", False):
+                            break
+                    await run_in_threadpool(archivo.seek, 0)
+                    pendiente = True
+
+                    async def desde_disco():
+                        nonlocal total, pendiente
+                        if not pendiente:
+                            return await receive()
+                        datos = await run_in_threadpool(archivo.read, 1024 * 1024)
+                        total -= len(datos)
+                        pendiente = total > 0
+                        return {"type": "http.request", "body": datos, "more_body": pendiente}
+
+                    return await self._despachar(scope, desde_disco, send)
+            except OSError:
+                return await rechazar(507, "No hay espacio o permiso para guardar la subida temporal.")
         receptor = receive
         if mutacion:
             trozos, total = [], 0
@@ -88,6 +129,9 @@ class FronteraLocal:
             async def receptor():
                 return trozos.pop(0) if trozos else await receive()
 
+        return await self._despachar(scope, receptor, send)
+
+    async def _despachar(self, scope, receptor, send):
         iniciada = False
 
         async def enviar(mensaje):

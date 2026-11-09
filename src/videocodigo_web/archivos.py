@@ -64,6 +64,19 @@ def carpeta_proyecto(nombre: str) -> Path:
     return carpeta
 
 
+def referencia_visual(carpeta: Path, manifiesto: dict) -> Path | None:
+    datos = manifiesto.get("referencia_visual")
+    if datos is None:
+        return None
+    ruta = datos.get("archivo", "") if isinstance(datos, dict) else ""
+    if not isinstance(ruta, str) or not re.fullmatch(r"referencia/estilo\.(?:png|jpg|jpeg|webp|mp4|mov|webm|mkv)", ruta):
+        raise HTTPException(422, "La referencia visual del proyecto no es válida.")
+    archivo = archivo_seguro(carpeta, ruta)
+    if not archivo.is_file():
+        raise HTTPException(409, "Falta el archivo de referencia visual del proyecto.")
+    return archivo
+
+
 def carpeta_web() -> Path:
     carpeta = Path(config.RAIZ) / ".web"
     if es_enlace(carpeta):

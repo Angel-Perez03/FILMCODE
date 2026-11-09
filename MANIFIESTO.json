@@ -28,8 +28,8 @@
     },
     {
       "archivo": "README.md",
-      "bytes": 22860,
-      "sha256": "9b34c80bd7e8a461cc5a4954da60f138ac7ce95c235e21b12e9c4de1300e9670"
+      "bytes": 23787,
+      "sha256": "9d198f3b3cf8d1f58f78c47fd0954107ae108be9c1808e1455941dbf7502e331"
     },
     {
       "archivo": "buildkitd.toml",
@@ -202,6 +202,11 @@
       "sha256": "314b80c40d580efb92492d8259cbb2ded26e55086a015a0f8e3f83168652f1ad"
     },
     {
+      "archivo": "frontend/src/componentes/FondoVideo.tsx",
+      "bytes": 2299,
+      "sha256": "5f3ff63d1d3c041c38552fb5782b88fbcf1c158f7288d00d574a80ed0ba9ef63"
+    },
+    {
       "archivo": "frontend/src/componentes/Icono.tsx",
       "bytes": 1782,
       "sha256": "d327bb214b65359500211cd840d6f7cafd55651bac3e8373b911f0511f21d5fb"
@@ -213,8 +218,8 @@
     },
     {
       "archivo": "frontend/src/componentes/OpcionesRender.tsx",
-      "bytes": 3042,
-      "sha256": "422a9cab70ee0167537c7c153dd86ae5d3fe742c6141489a41dac7f2164ae5a1"
+      "bytes": 3333,
+      "sha256": "af35178d4ec244d01818e68421c3a4edfa4cb4711d7d800f6b0e165c7ffac887"
     },
     {
       "archivo": "frontend/src/componentes/PanelCodigo.tsx",
@@ -253,8 +258,8 @@
     },
     {
       "archivo": "frontend/src/estilos/componentes.css",
-      "bytes": 24436,
-      "sha256": "a69557683a00bef6032ae45fec9c1820ce7fc1741f8e1faa481a7fc4e33233ba"
+      "bytes": 24724,
+      "sha256": "a680d36c85fe21da7d8bc03ade1f1da19becc8f9383ec0f90d82f7afaa5e1eef"
     },
     {
       "archivo": "frontend/src/estilos/inicio.css",
@@ -313,8 +318,8 @@
     },
     {
       "archivo": "frontend/src/paginas/NuevoVideo.tsx",
-      "bytes": 24697,
-      "sha256": "96ec26e47a23308919b0865402b3d17eb7176283541912b814774f33ca381151"
+      "bytes": 28515,
+      "sha256": "7a66f126f8e377bce34fa7b35a7127bd21d8da037e9a6e6af897e13f2142b692"
     },
     {
       "archivo": "frontend/src/paginas/Proyecto.tsx",
@@ -328,8 +333,8 @@
     },
     {
       "archivo": "frontend/src/paginas/Resumen.tsx",
-      "bytes": 32788,
-      "sha256": "471627f564f0d6addddddabb05acff4c7c3b892a6b3e9a793240592d828aa912"
+      "bytes": 33630,
+      "sha256": "14616d48d8f937e7b556a84961bde95379659bbd4f630bcf6527656925ae1094"
     },
     {
       "archivo": "frontend/src/paginas/Revision.tsx",
@@ -338,13 +343,13 @@
     },
     {
       "archivo": "frontend/src/paginas/VideoVista.tsx",
-      "bytes": 11451,
-      "sha256": "886ce22c36afb70378828323f2baf70c8f6f91f078b0c70e5c4e2d30be3badaa"
+      "bytes": 11793,
+      "sha256": "76cc5261655a5074f95702107c022f54701cd095df03ae84aac9def6442c989f"
     },
     {
       "archivo": "frontend/src/tipos.ts",
-      "bytes": 5170,
-      "sha256": "90441753977847b60fff0d9fb8ada73af380146ca2725f2dc239045e5b5d327b"
+      "bytes": 5294,
+      "sha256": "698d8887841f63f6686d98695b90193b82668f368bfd7ed8d88530e7a7b025c1"
     },
     {
       "archivo": "frontend/src/vite-env.d.ts",
@@ -583,8 +588,8 @@
     },
     {
       "archivo": "src/videocodigo_web/archivos.py",
-      "bytes": 4424,
-      "sha256": "e4bdc2df4183d994844d6786430c2efd2e8db1f1e01516333a10ee3fd90eb3f0"
+      "bytes": 5046,
+      "sha256": "c9f35f8ab6daf6e4d9c633af2b9885b96b6db83d0bdbd8fc64c7105e0b402b9d"
     },
     {
       "archivo": "src/videocodigo_web/bloqueo_exportacion.py",
@@ -597,19 +602,34 @@
       "sha256": "6cc214fb0a6329596a98e66a9e86fb848c8852a66d1e8a6b3aa90de33f61b352"
     },
     {
+      "archivo": "src/videocodigo_web/direccion_didactica.py",
+      "bytes": 17185,
+      "sha256": "17e9fff814bddbeb97aae04654c34e059f930fd69252381a81f114d35fb26281"
+    },
+    {
       "archivo": "src/videocodigo_web/empaquetar_instalador.py",
       "bytes": 2924,
       "sha256": "67ae71b506e113a8be8eb14acb5fb7fba9f053dee6ed4525ce75b4fb22663822"
     },
     {
+      "archivo": "src/videocodigo_web/escena_guion.py",
+      "bytes": 2363,
+      "sha256": "66f0a712100009f686c01bcdba3150ab8d2cce9000374752d0c944173fb5caaa"
+    },
+    {
+      "archivo": "src/videocodigo_web/estilo_referencia.py",
+      "bytes": 4915,
+      "sha256": "55b95869f914646109dee090d933e592249bdc28b97127711320a1ca25b3ca21"
+    },
+    {
       "archivo": "src/videocodigo_web/exportacion.py",
-      "bytes": 12314,
-      "sha256": "b01d280d65373fa53aba524b9a83c96de0b0e1a088a9cda01a0f9bfd81eb6fcd"
+      "bytes": 12347,
+      "sha256": "1278dc5cec36db3a0204a92752d8a95541d0c63dc73eafae6dd0f1787af726eb"
     },
     {
       "archivo": "src/videocodigo_web/formato_video.py",
-      "bytes": 1999,
-      "sha256": "13625368e59c70f276f425842bf26a7dbe81132ca0657fe5bd74eb51ebb6657d"
+      "bytes": 2240,
+      "sha256": "ee41fdc958b90c0c7dc440028bc83b7955448e9d6869c58ae0ef413328caf27c"
     },
     {
       "archivo": "src/videocodigo_web/fuentes.py",
@@ -638,13 +658,13 @@
     },
     {
       "archivo": "src/videocodigo_web/procesos.py",
-      "bytes": 24745,
-      "sha256": "67bfd2f3e957450eb94b238bd05715044c5d2fb3df32faa2b8ae63529e8cb40c"
+      "bytes": 25577,
+      "sha256": "1d2377cbcecb71ebb29200f1a0e0f091b8e983c7ca8f709b21af9cb6c99973e1"
     },
     {
       "archivo": "src/videocodigo_web/proyectos.py",
-      "bytes": 12175,
-      "sha256": "8547603925ef402ece68a018c7db7f5ecbf296725424b29dc3c8413abb5b2db6"
+      "bytes": 16738,
+      "sha256": "bfbe30d999a9d30c87ab552c7cf0073cf2c3fd16dedccac22fbfeda461e38b12"
     },
     {
       "archivo": "src/videocodigo_web/prueba_voz.py",
@@ -662,14 +682,19 @@
       "sha256": "8d3fd2637c575c857be33cbef26b8ea726546918aa167767ed4156904df187ea"
     },
     {
+      "archivo": "src/videocodigo_web/referencia_video.py",
+      "bytes": 15106,
+      "sha256": "347dafd4c436f7c74bee8823d7cdc87bdecbbfdb6ca9ea6e94439db323f837d2"
+    },
+    {
       "archivo": "src/videocodigo_web/seguridad.py",
-      "bytes": 4863,
-      "sha256": "e3b152baaa0fdfe9b5ee16186ea13ef7e90caafd25c54b2099c7f4686f92311a"
+      "bytes": 7279,
+      "sha256": "02d6830d8deb6de22aa2b33747e1d0aa5321ff03a2b0b81dc1e80959585cc97c"
     },
     {
       "archivo": "src/videocodigo_web/sistema.py",
-      "bytes": 10385,
-      "sha256": "26bf1950a206aa7c5e9a6f9569801ab03740f840de3c98bc5373f7aebfc66cce"
+      "bytes": 10929,
+      "sha256": "b7aae2a03522847aa606a2313e2b59e2ac7dade722538e4e3d9525de4f11d1e1"
     },
     {
       "archivo": "src/videocodigo_web/supervisor.py",
@@ -678,13 +703,13 @@
     },
     {
       "archivo": "src/videocodigo_web/trabajo_video.py",
-      "bytes": 10647,
-      "sha256": "bd45d8de3ae3d248abee7a0f9ed47565322961634e86345e4a686bee04e24f68"
+      "bytes": 14392,
+      "sha256": "ba0273c54ffb2a8b8d26f0823c442b15d6a2bf71f53a15a1c26eadcaa898f3d8"
     },
     {
       "archivo": "src/videocodigo_web/trabajos.py",
-      "bytes": 5991,
-      "sha256": "019306dcfc38fa31a164c6710f98729565be62b92e6adf8165726429e3f790b3"
+      "bytes": 6264,
+      "sha256": "f729b575eb1953ea83b5246fc154a90adcc09c87c24802087c0c8558e0bd3f73"
     }
   ],
   "excluido": [

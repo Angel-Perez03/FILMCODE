@@ -86,6 +86,8 @@ export function VideoVista({ proyecto }: {proyecto: Proyecto}) {
         {video && <dl className="vc-video__datos">
           <div><dt>Duración</dt><dd>{duracion(video.duracion)}</dd></div>
           {video.ancho && video.alto ? <div><dt>Formato</dt><dd>{video.orientacion === 'vertical' ? 'Vertical' : 'Horizontal'} · {video.ancho} × {video.alto}</dd></div> : null}
+          {video.usa_referencia_visual ? <div><dt>Estilo</dt><dd>Referencia aplicada</dd></div> : null}
+          {video.fondo_video ? <div><dt>Fondo</dt><dd className="vc-fondo-video__detalle"><span className="vc-fondo-video__muestra" style={{ backgroundColor: video.fondo_video }} aria-hidden="true"/>{video.fondo_video}</dd></div> : null}
           {video.velocidad_voz != null ? <div><dt>Ritmo de voz</dt><dd>{numero(video.velocidad_voz, 2)}×{video.duracion_fija_segundos ? ' antes del ajuste final' : ''}</dd></div> : null}
           <div><dt>Archivo</dt><dd>{numero(video.megas)} MB</dd></div>
           <div><dt>Render</dt><dd>{video.segundos_render ? tiempoLegible(video.segundos_render) : '—'}</dd></div>

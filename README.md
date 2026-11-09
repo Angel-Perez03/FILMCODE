@@ -38,10 +38,11 @@ para poder retomarlo.
 
 ## Actualizar una instalación existente
 
-Esta versión añade **duración fija**, **voz a 1,15× por defecto** y exportación
-**horizontal (16:9) o vertical (9:16)**. Si instalaste FilmCode con Docker,
-espera a que terminen los trabajos y ejecuta lo siguiente en la carpeta del
-repositorio, con Docker abierto:
+Esta versión permite **elegir el fondo del video**, **adjuntar una imagen o un
+video como referencia visual** y convertir los pasos de una **guía Markdown**
+en escenas animadas. Si instalaste FilmCode con Docker, espera a que terminen
+los trabajos y ejecuta lo siguiente en la carpeta del repositorio, con Docker
+abierto:
 
 ```powershell
 git pull --ff-only
@@ -267,6 +268,20 @@ automática obligatoria para aprobar el guion.
 
 **«Volver a comprobar» solo consulta; «Probar voz» sí genera audio.**
 La instalación se puede revisar sin generar un video.
+
+### Personaliza el estilo y anima una guía
+
+- En **Fondo del video** puedes usar el azul original, un fondo claro, un oscuro
+  neutro o un color personalizado. También puedes cambiarlo desde **Resumen** de
+  un proyecto: el cambio se aplica al siguiente render.
+- En **Crear video → Referencia visual** puedes adjuntar, junto al código o la
+  guía, una imagen PNG, JPG o WebP de hasta 20 MiB, o un video MP4, WebM, MOV o
+  MKV de hasta 200 MiB y 15 minutos. FilmCode toma su paleta y, si el modelo
+  local admite imágenes, también puede tomar pistas de estilo. La referencia no
+  aporta narración ni pasos. Si eliges un fondo sólido, ese color tiene prioridad.
+- En Markdown, escribe qué se debe hacer y qué resultado se espera en cada
+  paso. FilmCode usa esa información para mostrar acciones, cambios de estado y
+  ejemplos mientras explica su propósito.
 
 ## Abrir, cerrar y actualizar
 

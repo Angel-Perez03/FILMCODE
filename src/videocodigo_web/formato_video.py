@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Literal
 
 from videocodigo import proyecto
@@ -44,12 +45,15 @@ def dimensiones_salida(calidad: str) -> tuple[int, int]:
     return (alto, ancho) if orientacion_salida(calidad) == "vertical" else (ancho, alto)
 
 
-def filtro_vertical(calidad: str) -> str | None:
+def filtro_vertical(calidad: str, fondo: str | None = None) -> str | None:
     """Adapta el lienzo al móvil conservando el encuadre y el texto de Manim."""
     if orientacion_salida(calidad) == "horizontal":
         return None
     ancho, alto = dimensiones_salida(calidad)
+    if fondo is not None and not re.fullmatch(r"#[0-9a-fA-F]{6}", fondo):
+        raise ValueError("El color de fondo de la referencia no es válido.")
+    color = "0x" + (fondo[1:] if fondo else "080C16")
     return (
         f"scale=w={ancho}:h={alto}:force_original_aspect_ratio=decrease:force_divisible_by=2,"
-        f"pad=w={ancho}:h={alto}:x=(ow-iw)/2:y=(oh-ih)/2:color=0x080C16,setsar=1"
+        f"pad=w={ancho}:h={alto}:x=(ow-iw)/2:y=(oh-ih)/2:color={color},setsar=1"
     )

@@ -19,14 +19,68 @@ from videocodigo.duracion import validar_minutos
 from videocodigo.velocidades import validar_velocidades
 
 from .ajuste_guion import preparar_guion
-from .archivos import archivo_seguro, carpeta_proyecto, escribir_json, leer_json
+from .archivos import archivo_seguro, carpeta_proyecto, escribir_json, leer_json, referencia_visual
 from .bloqueo_exportacion import ExportacionEnCurso, bloquear_exportacion
+from .direccion_didactica import generar_guion_didactico
+from .estilo_referencia import FONDO_PREDETERMINADO, PALETA_ENV, leer_paleta, normalizar_fondo, paleta_con_fondo
 from .exportacion import ErrorExportacion, ExportacionCorta, ExportacionLarga, preparar_exportacion
 from .formato_video import calidad_base, calidad_salida, calidades_salida
 from .medios import capitulos_de
+from .referencia_video import ErrorReferenciaVideo, analizar_referencia, paleta_referencia
 from .seguridad import sanitizar
 
 BORRADOR = "web-borrador"
+
+
+def _preparar_estilo(carpeta: Path, archivo: Path, modelo: str | None, describir: bool, progreso) -> tuple[dict, str]:
+    destino = archivo_seguro(carpeta, "referencia/estilo.json")
+    datos = leer_json(destino, {})
+    estado = archivo.stat()
+    firma = [estado.st_size, estado.st_mtime_ns]
+    if not isinstance(datos, dict) or datos.get("firma") != firma:
+        datos = {"firma": firma}
+    try:
+        paleta = leer_paleta(json.dumps(datos["paleta"])) if "paleta" in datos else None
+    except ValueError:
+        paleta = None
+    if paleta is None:
+        progreso("Extrayendo la paleta de la referencia visual", -1)
+        paleta = paleta_referencia(carpeta, archivo)
+        datos["paleta"] = paleta
+        escribir_json(destino, datos)
+
+    estilo = datos.get("descripcion") if datos.get("modelo") == modelo else None
+    if describir and not isinstance(estilo, str):
+        try:
+            estilo = analizar_referencia(carpeta, archivo, modelo, progreso)
+        except ErrorReferenciaVideo:
+            progreso("Ollama no confirmó el estilo. Se aplicarán los colores extraídos de la referencia.", -1)
+        else:
+            datos.update(descripcion=estilo, modelo=modelo)
+            escribir_json(destino, datos)
+    contexto = (f"Referencia únicamente visual: fondo {paleta['fondo']}, "
+                f"acentos {paleta['acento']} y {paleta['secundario']}. "
+                "Mantén los pasos, comandos y hechos de la fuente principal.")
+    return paleta, contexto + ("\n" + estilo if isinstance(estilo, str) else "")
+
+
+@contextmanager
+def _escena_con_estilo(paleta: dict | None):
+    if paleta is None:
+        yield
+        return
+    original = proyecto.ESCENA
+    anterior = os.environ.get(PALETA_ENV)
+    proyecto.ESCENA = Path(__file__).with_name("escena_guion.py")
+    os.environ[PALETA_ENV] = json.dumps(paleta)
+    try:
+        yield
+    finally:
+        proyecto.ESCENA = original
+        if anterior is None:
+            os.environ.pop(PALETA_ENV, None)
+        else:
+            os.environ[PALETA_ENV] = anterior
 
 
 def _archivos(salida: Path, calidad: str) -> tuple[Path, Path, Path]:
@@ -99,7 +153,8 @@ def _publicar(temporales: tuple[Path, ...], destinos: tuple[Path, ...], confirma
 
 
 def renderizar(nombre: str, base: str, orientacion: str, segundos: int | None, voz: str | None,
-               ritmo: float, animaciones: float, fluida: bool, progreso=_progreso) -> dict:
+               ritmo: float, animaciones: float, fluida: bool, progreso=_progreso, *, paleta: dict | None = None,
+               usa_referencia: bool = False) -> dict:
     carpeta = carpeta_proyecto(nombre)
     salida = archivo_seguro(carpeta, "salida")
     salida.mkdir(exist_ok=True)
@@ -127,11 +182,12 @@ def renderizar(nombre: str, base: str, orientacion: str, segundos: int | None, v
         for intento in range(2):
             for archivo in temporales:
                 archivo.unlink(missing_ok=True)
-            with _render_provisional(base, calidad):
+            with _render_provisional(base, calidad), _escena_con_estilo(paleta):
                 info = proyecto.renderizar(nombre, BORRADOR, progreso, voz, ritmo, animaciones, fluida)
             progreso("Ajustando el archivo final", -1)
             try:
-                medicion = preparar_exportacion(*temporales, segundos=segundos, calidad=calidad)
+                opciones = {"fondo": paleta["fondo"]} if paleta else {}
+                medicion = preparar_exportacion(*temporales, segundos=segundos, calidad=calidad, **opciones)
             except (ExportacionCorta, ExportacionLarga) as error:
                 if intento or segundos is None or ajuste is None:
                     raise
@@ -151,6 +207,10 @@ def renderizar(nombre: str, base: str, orientacion: str, segundos: int | None, v
         escribir_json(temporales[2], {**narracion, "capitulos": capitulos_de(guion, narracion)})
         info.update(medicion, ruta=str(destinos[0]), fecha=datetime.now().isoformat(timespec="milliseconds"),
                     duracion_fija_segundos=segundos)
+        if paleta:
+            info["fondo_video"] = paleta["fondo"]
+            if usa_referencia:
+                info["paleta_referencia"] = paleta
         with bloquear_exportacion(carpeta):
             _publicar(temporales, destinos, lambda: proyecto.actualizar_estado(
                 nombre, etapa=calidad, fase_render="terminado", mensaje=f"Video {calidad} listo", progreso=100,
@@ -172,6 +232,7 @@ def main(argv=None) -> int:
     parser.add_argument("nombre")
     parser.add_argument("--calidad", choices=calidades_salida(), default=proyecto.CALIDAD_PREDETERMINADA)
     parser.add_argument("--orientacion", choices=("horizontal", "vertical"), default="horizontal")
+    parser.add_argument("--fondo-video", type=normalizar_fondo, default=FONDO_PREDETERMINADO)
     parser.add_argument("--modelo")
     parser.add_argument("--sin-capturas", action="store_true")
     parser.add_argument("--duracion-minutos", type=float)
@@ -193,20 +254,31 @@ def main(argv=None) -> int:
             minutos = validar_minutos(args.duracion_minutos)
             segundos = round(minutos * 60) if minutos is not None else None
             ritmo, animaciones = validar_velocidades(args.velocidad_voz, args.velocidad_animaciones)
+            generar = args.tipo == "guion" or (args.tipo == "continuar" and not archivo_seguro(carpeta, "guion.json").is_file())
+            manifiesto = leer_json(archivo_seguro(carpeta, "proyecto.json"), {})
+            referencia = referencia_visual(carpeta, manifiesto)
+            paleta, contexto = _preparar_estilo(carpeta, referencia, args.modelo, generar, _progreso) if referencia else (None, None)
+            paleta = paleta_con_fondo(paleta, args.fondo_video)
+            if contexto and args.fondo_video != FONDO_PREDETERMINADO:
+                contexto += f"\nEl fondo sólido {args.fondo_video} elegido por la persona tiene prioridad."
             guion = None
-            if args.tipo == "guion" or (args.tipo == "continuar" and not archivo_seguro(carpeta, "guion.json").is_file()):
-                guion = proyecto.generar_guion(args.nombre, args.modelo, not args.sin_capturas, _progreso, minutos)
+            if generar:
+                guion = generar_guion_didactico(args.nombre, args.modelo, not args.sin_capturas and referencia is None,
+                                                 _progreso, minutos, referencia=contexto)
             if args.tipo == "guion":
                 if segundos is not None:
                     preparar_guion(carpeta, segundos, ritmo, animaciones, args.fluida)
                 datos = leer_json(archivo_seguro(carpeta, "estado.json"), {}).get("guion", guion)
             else:
-                video = renderizar(args.nombre, calidad_base(args.calidad), args.orientacion, segundos,
-                                   args.voz, ritmo, animaciones, args.fluida)
+                if segundos is None and args.orientacion == "horizontal" and not paleta:
+                    video = proyecto.renderizar(args.nombre, args.calidad, _progreso, args.voz, ritmo, animaciones, args.fluida)
+                else:
+                    video = renderizar(args.nombre, calidad_base(args.calidad), args.orientacion, segundos,
+                                       args.voz, ritmo, animaciones, args.fluida, paleta=paleta, usa_referencia=referencia is not None)
                 datos = {"proyecto": args.nombre, "guion": guion, "video": video} if args.tipo == "continuar" else video
         print(json.dumps(datos, ensure_ascii=False))
         return 0
-    except (ExportacionEnCurso, proyecto.ErrorProyecto, HTTPException, OSError, ValueError) as error:
+    except (ErrorReferenciaVideo, ExportacionEnCurso, proyecto.ErrorProyecto, HTTPException, OSError, ValueError) as error:
         mensaje = error.detail if isinstance(error, HTTPException) else str(error)
         print(sanitizar(str(mensaje)), file=sys.stderr)
         if carpeta is not None:

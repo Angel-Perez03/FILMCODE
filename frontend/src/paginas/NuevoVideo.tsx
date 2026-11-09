@@ -12,20 +12,35 @@ import type { Subida } from '../fuentes';
 import { avisar, Mensaje, navegarPestanas } from '../componentes/Comun';
 import { Interruptor, Selector } from '../componentes/Controles';
 import { OpcionesRender } from '../componentes/OpcionesRender';
+import { FONDO_PREDETERMINADO, nombreFondoVideo } from '../componentes/FondoVideo';
 
 type Modo = 'archivos' | 'ruta' | 'markdown';
 const MODOS: [Modo, string][] = [['archivos', 'Archivo o carpeta'], ['ruta', 'Ruta local'], ['markdown', 'Guía en Markdown']];
+const EXTENSIONES_REFERENCIA = '.png,.jpg,.jpeg,.webp,.mp4,.webm,.mov,.mkv';
+const MIB = 1024 * 1024;
+
+function errorReferenciaVisual(archivo: File | null) {
+  if (!archivo) return '';
+  const imagen = /\.(png|jpe?g|webp)$/i.test(archivo.name);
+  if (!imagen && !/\.(mp4|webm|mov|mkv)$/i.test(archivo.name)) return 'Elige una imagen PNG, JPG o WebP, o un video MP4, WebM, MOV o MKV.';
+  if (!archivo.size) return 'El archivo está vacío.';
+  const maximo = imagen ? 20 : 200;
+  if (archivo.size > maximo * MIB) return `La referencia supera el límite de ${maximo} MiB.`;
+  return '';
+}
 
 export function NuevoVideo() {
   const [parametros] = useSearchParams();
   const { state } = useLocation() as { state: { subidas?: Subida[] } | null };
   const [modo, setModo] = useState<Modo>(state?.subidas ? 'archivos' : parametros.get('ruta') ? 'ruta' : 'archivos');
   const [subidas, setSubidas] = useState<Subida[]>(state?.subidas ?? []), [ruta, setRuta] = useState(parametros.get('ruta') ?? ''), [markdown, setMarkdown] = useState('');
+  const [referencia, setReferencia] = useState<File | null>(null);
   const [revision, setRevision] = useState<Revision | null>(null);
   const [nombre, setNombre] = useState(''), [titulo, setTitulo] = useState(''), [calidad, setCalidad] = useState<string>(() => configRenderInicial());
   const [orientacion, setOrientacion] = useState<Orientacion>('horizontal');
+  const [fondoVideo, setFondoVideo] = useState(FONDO_PREDETERMINADO);
   const [modelo, setModelo] = useState(''), [voz, setVoz] = useState('');
-  const [capturar, setCapturar] = useState(true), [prioridad, setPrioridad] = useState(true);
+  const [capturar, setCapturar] = useState(false), [prioridad, setPrioridad] = useState(true);
   const [duracionObjetivo, setDuracionObjetivo] = useState('');
   const [entradaDuracionInvalida, setEntradaDuracionInvalida] = useState(false);
   const [velocidadVoz, setVelocidadVoz] = useState(String(VELOCIDAD_VOZ_PREDETERMINADA)), [velocidadAnimaciones, setVelocidadAnimaciones] = useState('1');
@@ -38,22 +53,29 @@ export function NuevoVideo() {
   const rutasAnfitrion = ajustes.data?.capacidades?.rutas_anfitrion !== false;
   const navegar = useNavigate(), cliente = useQueryClient();
   const carpeta = useRef<HTMLInputElement>(null);
+  const entradaReferencia = useRef<HTMLInputElement>(null);
   const archivos = filtrarSubidas(subidas);
   useEffect(() => { carpeta.current?.setAttribute('webkitdirectory', ''); }, [modo]);
   useEffect(() => { if (ajustes.data) { setModelo(m => m || `${ajustes.data.modelo.proveedor}:${ajustes.data.modelo.modelo}`); setVoz(v => v || vozInicial(ajustes.data)); } }, [ajustes.data]);
-  useEffect(() => { if (enDocker) setCapturar(false); }, [enDocker]);
   useEffect(() => { if (state?.subidas?.length) sugerir(state.subidas[0].ruta.split('/')[0]); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (parametros.get('ruta')) void revisar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function sugerir(texto: string) { const base = texto.replace(/\.[^.]+$/, ''); setNombre(n => n || nombreValido(base)); setTitulo(t => t || base); }
+  function sugerir(texto: string) { const base = texto.replace(/\.[^.]+$/, ''); setNombre(n => n || nombreValido(base).replace(/-+$/, '')); setTitulo(t => t || base.slice(0, 200)); }
   function elegir(lista: Subida[]) { setSubidas(lista); setCreado(''); if (lista[0]) sugerir(lista[0].ruta.split('/')[0]); }
+  function adjuntarReferencia(archivo: File | null) {
+    setReferencia(archivo);
+    setCreado('');
+    if (archivo) setCapturar(false);
+  }
   async function revisar() {
     if (!ruta.trim()) return;
     setRevisando(true);
     try { const r = await enviar<Revision>('/fuentes/revisar', { ruta: ruta.trim() }); setRevision(r); if (r.existe) sugerir(ruta.trim().split(/[\\/]/).filter(Boolean).at(-1) ?? 'video'); }
     catch (e) { setRevision(null); avisar((e as Error).message, true); } finally { setRevisando(false); }
   }
-  const fuenteLista = modo === 'archivos' ? archivos.archivos.length > 0 : modo === 'ruta' ? Boolean(revision?.existe && revision.archivos.length) : Boolean(markdown.trim()) && new TextEncoder().encode(markdown).length <= 400_000;
+  const fuentePrincipalLista = modo === 'archivos' ? archivos.archivos.length > 0 : modo === 'ruta' ? Boolean(revision?.existe && revision.archivos.length) : Boolean(markdown.trim()) && new TextEncoder().encode(markdown).length <= 400_000;
+  const errorReferencia = errorReferenciaVisual(referencia);
+  const fuenteLista = fuentePrincipalLista && !errorReferencia;
   const nombreBien = Boolean(nombre) && nombreValido(nombre) === nombre;
   const minutosObjetivo = duracionObjetivo.trim() === '' ? null : Number(duracionObjetivo);
   const duracionValida = !entradaDuracionInvalida && (minutosObjetivo == null || (Number.isFinite(minutosObjetivo) && minutosObjetivo >= 1 && minutosObjetivo <= 120));
@@ -81,11 +103,24 @@ export function NuevoVideo() {
       let proyecto = creado;
       if (!proyecto) {
         let resultado: {nombre: string};
-        if (modo === 'archivos') { const formulario = new FormData(); archivos.archivos.forEach(s => formulario.append('archivos', s.archivo, s.ruta)); formulario.append('nombre', nombre); formulario.append('titulo', titulo); resultado = await peticion('/proyectos', { method: 'POST', body: formulario }); }
-        else resultado = await enviar('/proyectos', { ...(modo === 'ruta' ? { ruta: ruta.trim() } : { markdown, archivo: 'guia.md' }), nombre, titulo });
+        if (modo === 'archivos' || referencia) {
+          const formulario = new FormData();
+          if (modo === 'archivos') archivos.archivos.forEach(s => formulario.append('archivos', s.archivo, s.ruta));
+          if (modo === 'ruta') formulario.append('ruta', ruta.trim());
+          if (modo === 'markdown') {
+            formulario.append('markdown', markdown);
+            formulario.append('archivo', 'guia.md');
+          }
+          if (referencia) formulario.append('referencia_visual', referencia);
+          formulario.append('nombre', nombre);
+          formulario.append('titulo', titulo);
+          resultado = await peticion(referencia ? '/proyectos/con-referencia' : '/proyectos', { method: 'POST', body: formulario });
+        } else {
+          resultado = await enviar('/proyectos', { ...(modo === 'ruta' ? { ruta: ruta.trim() } : { markdown, archivo: 'guia.md' }), nombre, titulo });
+        }
         proyecto = resultado.nombre; setCreado(proyecto);
       }
-      await enviar(`${baseProyecto(proyecto)}/trabajos`, { tipo: 'continuar', calidad, orientacion, modelo, capturar, prioridad_baja: prioridad, duracion_objetivo_minutos: minutosObjetivo, velocidad_voz: factorVoz, velocidad_animaciones: factorAnimaciones, voz_fluida: vozFluida, ...opcionesDeVoz(voz) });
+      await enviar(`${baseProyecto(proyecto)}/trabajos`, { tipo: 'continuar', calidad, orientacion, fondo_video: fondoVideo, modelo, capturar: !referencia && capturar, prioridad_baja: prioridad, duracion_objetivo_minutos: minutosObjetivo, velocidad_voz: factorVoz, velocidad_animaciones: factorAnimaciones, voz_fluida: vozFluida, ...opcionesDeVoz(voz) });
       await cliente.invalidateQueries(); navegar(`/proyectos/${proyecto}`);
     } catch (e) { avisar((e as Error).message, true); } finally { setOcupado(false); }
   }
@@ -94,14 +129,14 @@ export function NuevoVideo() {
     <div className="vc-cabeza">
       <div>
         <h1 className="titulo">Nuevo video</h1>
-        <p className="vc-cabeza__meta">Elige el código. Lo demás lo hace la app: el guion, la animación y la voz.</p>
+        <p className="vc-cabeza__meta">Convierte código o una guía en una explicación animada. Añade una referencia si quieres orientar el estilo visual.</p>
       </div>
     </div>
     <div className="vc-nuevo">
       <div className="vc-nuevo__pasos">
         <section className="vc-nuevo__paso" aria-labelledby="paso-fuente">
           <h2 id="paso-fuente" className="vc-nuevo__linea" aria-current={paso === 0 ? 'step' : undefined}>{paso > 0 && <Check aria-hidden="true"/>}Fuente</h2>
-          <div className="vc-pestanas" role="tablist" aria-label="De dónde sale el código" onKeyDown={navegarPestanas}>
+          <div className="vc-pestanas" role="tablist" aria-label="Fuente principal" onKeyDown={navegarPestanas}>
             {MODOS.map(([id, texto]) => <button key={id} type="button" role="tab" className="vc-pestana" aria-selected={modo === id} tabIndex={modo === id ? 0 : -1} onClick={() => { setModo(id); setCreado(''); }}>{id === 'ruta' && !rutasAnfitrion ? 'Ruta del contenedor' : texto}</button>)}
           </div>
           {modo === 'archivos' ? <>
@@ -136,10 +171,23 @@ export function NuevoVideo() {
           </> : <>
             <label className="vc-campo">
               <span className="vc-campo__etiqueta">Tu guía en Markdown</span>
-              <textarea className="vc-campo__entrada" rows={12} value={markdown} placeholder="# Cómo instalar…" onChange={e => { setMarkdown(e.target.value); setCreado(''); if (!nombre) setNombre('mi-guia'); }}/>
+              <textarea className="vc-campo__entrada" rows={12} value={markdown} placeholder="# Cómo instalar…" aria-describedby="guia-markdown-ayuda" onChange={e => { setMarkdown(e.target.value); setCreado(''); if (!nombre) setNombre('mi-guia'); }}/>
             </label>
+            <p id="guia-markdown-ayuda" className="vc-nota">Incluye los pasos, comandos o resultados que quieras mostrar. FilmCode usa la guía para preparar demostraciones y explicar qué cambia y por qué.</p>
             {markdown.trim() && <details className="vc-plegable"><summary><ChevronRight aria-hidden="true"/>Vista previa</summary><div className="vc-markdown"><ReactMarkdown skipHtml components={{ img: () => <span>[imagen omitida]</span>, a: ({ children }) => <span>{children}</span> }}>{markdown}</ReactMarkdown></div></details>}
           </>}
+          <div className={`vc-campo${errorReferencia ? ' vc-campo--error' : ''}`}>
+            <span className="vc-campo__etiqueta">Referencia visual (opcional)</span>
+            <div className="vc-fila-botones">
+              <button type="button" className="vc-boton" disabled={ocupado} aria-describedby={`referencia-visual-ayuda${errorReferencia ? ' referencia-visual-error' : ''}`} onClick={() => entradaReferencia.current?.click()}>{referencia ? 'Cambiar referencia' : 'Elegir imagen o video'}</button>
+              <input ref={entradaReferencia} type="file" hidden accept={EXTENSIONES_REFERENCIA} disabled={ocupado} onChange={e => { const archivo = e.currentTarget.files?.[0]; if (archivo) adjuntarReferencia(archivo); e.currentTarget.value = ''; }}/>
+              {referencia && <button type="button" className="vc-boton" disabled={ocupado} onClick={() => adjuntarReferencia(null)}>Quitar referencia</button>}
+            </div>
+            {referencia && <p className="vc-nota" role="status">{referencia.name} · {numero(referencia.size / MIB, 2)} MiB</p>}
+            <span id="referencia-visual-ayuda" className="vc-campo__ayuda">FilmCode usa la referencia para ajustar la paleta y la apariencia. Los pasos del guion salen de tu guía o código. Imágenes PNG, JPG o WebP de hasta 20 MiB; videos MP4, WebM, MOV o MKV de hasta 200 MiB y 15 minutos.</span>
+            {errorReferencia && <span id="referencia-visual-error" className="vc-campo__error" role="alert">{errorReferencia}</span>}
+            {referencia && !errorReferencia && !fuentePrincipalLista && <p className="vc-nota">Añade código o una guía para indicar qué debe explicar el video.</p>}
+          </div>
         </section>
         <section className="vc-nuevo__paso" aria-labelledby="paso-opciones">
           <h2 id="paso-opciones" className="vc-nuevo__linea" aria-current={paso === 1 ? 'step' : undefined}>{paso > 1 && <Check aria-hidden="true"/>}Opciones</h2>
@@ -151,7 +199,8 @@ export function NuevoVideo() {
               {nombre && !nombreBien ? <span className="vc-campo__error">Usa minúsculas, números y guiones. Por ejemplo: {nombreValido(nombre)}</span> : <span className="vc-campo__ayuda">Minúsculas, números y guiones; 60 caracteres como máximo.</span>}
             </label>
           </div>
-          <OpcionesRender calidad={calidad} cambiar={setCalidad} orientacion={orientacion} cambiarOrientacion={setOrientacion} deshabilitado={ocupado}/>
+          <OpcionesRender calidad={calidad} cambiar={setCalidad} orientacion={orientacion} cambiarOrientacion={setOrientacion}
+            fondo={fondoVideo} cambiarFondo={setFondoVideo} tieneReferencia={Boolean(referencia)} deshabilitado={ocupado}/>
           <div className={`vc-campo${duracionValida ? '' : ' vc-campo--error'}`}>
             <label className="vc-campo__etiqueta" htmlFor="duracion-objetivo">Duración fija del video (minutos, opcional)</label>
             <input id="duracion-objetivo" className="vc-campo__entrada" type="number" min={1} max={120} step="any" placeholder="Libre" value={duracionObjetivo} disabled={ocupado} onChange={e => { setDuracionObjetivo(e.target.value); setEntradaDuracionInvalida(e.target.validity.badInput); }} aria-invalid={!duracionValida} aria-describedby="duracion-objetivo-ayuda"/>
@@ -186,7 +235,7 @@ export function NuevoVideo() {
             <span className="vc-campo__etiqueta"><input type="checkbox" checked={vozFluida} disabled={ocupado} onChange={e => setVozFluida(e.target.checked)}/> Narración continua</span>
             <span className="vc-campo__ayuda">Reduce pausas entre bloques sin regenerar tu voz</span>
           </label>
-          <Interruptor marcado={capturar} cambiar={setCapturar} ayuda={enDocker ? 'Desactivado al abrir esta pantalla. Si lo activas, los comandos se ejecutan dentro del contenedor; no consultan las herramientas del equipo anfitrión.' : 'Solo corre cosas como docker version; nada que instale o borre.'}>Ejecutar comandos de verificación reales</Interruptor>
+          {referencia ? <p className="vc-nota">Con una referencia visual, las demostraciones se preparan con los pasos de la fuente sin ejecutar sus comandos.</p> : <Interruptor marcado={capturar} cambiar={setCapturar} ayuda={enDocker ? 'Si lo activas, los comandos permitidos se ejecutan dentro del contenedor.' : 'Actívalo solo si quieres ejecutar comandos de comprobación permitidos, como docker version.'}>Ejecutar comandos de verificación reales</Interruptor>}
           <div className="vc-campo">
             <span className="vc-campo__etiqueta">Prioridad</span>
             <div><Selector etiqueta="Prioridad" valor={prioridad ? 'baja' : 'alta'} cambiar={valor => setPrioridad(valor === 'baja')} deshabilitado={ocupado || !prioridadDinamica} opciones={[{ valor: 'alta', texto: 'Alta' }, { valor: 'baja', texto: 'Baja' }]}/></div>
@@ -209,7 +258,7 @@ export function NuevoVideo() {
           <li className="flex justify-between gap-4"><span>ffmpeg</span><span className={`vc-insignia vc-insignia--${salud.data?.ffmpeg ? 'verde' : 'gris'}`}>{salud.data?.ffmpeg ? 'listo' : 'no está'}</span></li>
         </ul>
         {impedimento && <Mensaje tono="aviso" accion={<button type="button" className="vc-boton vc-boton--chico" onClick={() => void refrescarSalud(cliente).catch((e: Error) => avisar(e.message, true))}>Reintentar</button>}>{impedimento}</Mensaje>}
-        <p className="vc-nota">Se copia la fuente a <code className="codigo">videos/{nombreBien ? nombre : '<nombre>'}/codigo</code>; el original no se toca. La app no enciende ni apaga Ollama ni VoiceStudio.</p>
+        <p className="vc-nota">La fuente y la referencia adjunta se copian a la carpeta del proyecto. Los originales no se modifican.</p>
         <dl className="vc-nuevo__configuracion">
           <div><dt>Video</dt><dd>{describirCalidad(calidad).nombre}</dd></div>
           <div><dt>Voz</dt><dd>{nombreVoz}</dd></div>
@@ -217,10 +266,11 @@ export function NuevoVideo() {
           <div><dt>Animaciones</dt><dd>{velocidadAnimacionesValida ? `${numero(factorAnimaciones, 2)}×` : 'Revisa la velocidad'}</dd></div>
           <div><dt>Narración continua</dt><dd>{vozFluida ? 'Activada' : 'Desactivada'}</dd></div>
           <div><dt>Orientación</dt><dd>{orientacion === 'vertical' ? 'Vertical · 9:16' : 'Horizontal · 16:9'}</dd></div>
+          <div><dt>Fondo</dt><dd>{nombreFondoVideo(fondoVideo, Boolean(referencia))}</dd></div>
           <div><dt>Duración de exportación</dt><dd>{duracionValida ? minutosObjetivo == null ? 'Libre' : duracion(minutosObjetivo * 60) : 'Revisa los minutos'}</dd></div>
         </dl>
         <button className="vc-boton vc-boton--principal vc-boton--grande w-full" type="submit" disabled={!fuenteLista || !nombreBien || !duracionValida || !velocidadesValidas || Boolean(impedimento) || ocupado}>{ocupado ? 'Preparando…' : creado ? 'Reintentar el inicio' : 'Hacer video'}</button>
-        <p className="vc-nota">El guion tarda de 10 a 30 minutos. Podrás seguir el progreso y cancelar.</p>
+        <p className="vc-nota">El análisis y el guion pueden tardar. Podrás seguir el progreso y cancelar.</p>
       </aside>
     </div>
   </form>;

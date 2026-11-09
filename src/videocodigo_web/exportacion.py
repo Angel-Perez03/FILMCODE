@@ -152,7 +152,7 @@ def _plan(original: float, contenido: float, objetivo: float, fps: float) -> flo
 
 
 def preparar_exportacion(video: Path, subtitulos: Path, narrado: Path, *,
-                         segundos: float | None, calidad: str) -> dict:
+                         segundos: float | None, calidad: str, fondo: str | None = None) -> dict:
     """Entrega archivos listos en staging; el llamador publica la salida completa.
 
     No sustituye el MP4 antes de verificar duración, encuadre y metadatos. Si la
@@ -165,7 +165,7 @@ def preparar_exportacion(video: Path, subtitulos: Path, narrado: Path, *,
 
     original = _sondear(video)
     orientacion = orientacion_salida(calidad)
-    vertical = filtro_vertical(calidad)
+    vertical = filtro_vertical(calidad, fondo)
     dimensiones = dimensiones_salida(calidad) if vertical else (original.ancho, original.alto)
     factor, objetivo, fotogramas = 1.0, original.duracion, None
     texto_srt, texto_narrado = None, None
