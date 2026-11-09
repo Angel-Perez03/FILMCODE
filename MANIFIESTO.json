@@ -28,8 +28,8 @@
     },
     {
       "archivo": "README.md",
-      "bytes": 23787,
-      "sha256": "9d198f3b3cf8d1f58f78c47fd0954107ae108be9c1808e1455941dbf7502e331"
+      "bytes": 23248,
+      "sha256": "7def317bd9dbb0e762f23f53dd62aab11432e5df1a6dfb81d87edd24c626544f"
     },
     {
       "archivo": "buildkitd.toml",
@@ -48,8 +48,8 @@
     },
     {
       "archivo": "configuracion.example",
-      "bytes": 1286,
-      "sha256": "c6efec425c702e55be25a3fb221111df09f1b353f49f80c26635d9bdec7c038b"
+      "bytes": 1202,
+      "sha256": "da47f3d2727593afe46b57b2982b2131177f32f6d3e47d49e651da02297e5b86"
     },
     {
       "archivo": "fonts.conf",

@@ -26,5 +26,4 @@ FILMCODE_RAM=4g
 
 # Solo para compose.publicado.yaml: referencia exacta publicada en Docker Hub.
 # Formato: cuenta/imagen:version, o cuenta/imagen@sha256:digest.
-# No hace falta configurar estos servicios ni la red host para publicar una imagen.
-FILMCODE_IMAGEN=angelitow/filmcode:0.2.0
+FILMCODE_IMAGEN=angelitow/filmcode:0.3.0
